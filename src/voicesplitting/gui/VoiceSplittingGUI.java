@@ -89,6 +89,11 @@ public class VoiceSplittingGUI extends JFrame {
 	private VoiceSplittingRunner runner;
 	
 	/**
+	 * The solo buttons.
+	 */
+	private JButton[] soloButtons;
+	
+	/**
 	 * The params to use for Voice Splitting.
 	 */
 	private VoiceSplittingParameters params = new VoiceSplittingParameters();
@@ -222,6 +227,7 @@ public class VoiceSplittingGUI extends JFrame {
 		horizontalZoom.add(Box.createHorizontalStrut(30));
 		
 		// Track solo buttons
+		soloButtons = new JButton[16];
 		for (int i = 0; i < 16; i++) {
 			final int track = i;
 			JButton soloButton = new JButton();
@@ -242,6 +248,7 @@ public class VoiceSplittingGUI extends JFrame {
 				}
 			});
 			horizontalZoom.add(soloButton);
+			soloButtons[i] = soloButton;
 		}
 		
 		// Clear solo button
@@ -253,13 +260,8 @@ public class VoiceSplittingGUI extends JFrame {
 		clearSolos.setToolTipText("Unsolo all tracks");
 		clearSolos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				for (Component comp : ((Component) e.getSource()).getParent().getComponents()) {
-					if (comp instanceof JButton) {
-						JButton button = (JButton) comp;
-						if (button.getText().equals("")) {
-							button.setBorder(BorderFactory.createRaisedBevelBorder());
-						}
-					}
+				for (JButton button : soloButtons) {
+					button.setBorder(BorderFactory.createRaisedBevelBorder());
 				}
 				noteDisplayer.clearAllSolos();
 			}
@@ -400,6 +402,10 @@ public class VoiceSplittingGUI extends JFrame {
 					} catch (ExecutionException e) {
 						displayErrorDialog(e);
 						return;
+					}
+					
+					for (JButton button : soloButtons) {
+						button.setBorder(BorderFactory.createRaisedBevelBorder());
 					}
 					
 					fileNameLabel.setText(runner.getFile().getName());
