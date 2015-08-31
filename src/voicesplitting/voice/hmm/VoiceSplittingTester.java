@@ -20,7 +20,6 @@ import voicesplitting.time.TimeTracker;
 import voicesplitting.trackers.NoteListGenerator;
 import voicesplitting.utils.MidiNote;
 import voicesplitting.voice.SingleNoteVoice;
-import voicesplitting.voice.Voice;
 import voicesplitting.voice.VoiceSplitter;
 
 /**
@@ -317,7 +316,6 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	 * @throws IOException
 	 * @throws MidiUnavailableException
 	 */
-	@SuppressWarnings("unchecked")
 	private static VoiceSplittingTesterReturn runTest(VoiceSplittingParameters params) throws InvalidMidiDataException, IOException, MidiUnavailableException {
 		int noteCount = 0;
 		int correct = 0;
@@ -342,9 +340,9 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 			voiceAccSongSum = 0;
 			VoiceSplitter vs = new HmmVoiceSplitter(song, params);
 
-			List<Voice> voices;
+			List<SingleNoteVoice> voices;
 			try {
-				voices = (List<Voice>) vs.getVoices();
+				voices = vs.getVoices();
 			} catch (InterruptedException e) {
 				System.err.println(e.getLocalizedMessage());
 				return null;
@@ -354,7 +352,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 			int songFalsePositives = 0;
 			int songNoteCount = 0;
 
-			for (Voice voice : voices) {
+			for (SingleNoteVoice voice : voices) {
 				int voiceNumNotes = voice.getNumNotes();
 				int voiceCorrect = voice.getNumNotesCorrect();
 				
