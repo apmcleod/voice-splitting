@@ -1,8 +1,9 @@
 package voicesplitting.voice.hmm;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import voicesplitting.utils.MathUtils;
 import voicesplitting.utils.MidiNote;
@@ -72,108 +73,189 @@ public class State implements Comparable<State> {
 	 * @param incoming A List of incoming notes.
 	 * @return A List of possible States which we could transition into.
 	 */
-	public List<State> getAllCandidateNewStates(List<MidiNote> incoming) {
+	public SortedSet<State> getAllCandidateNewStates(List<MidiNote> incoming) {
 		// We need a deep copy of voices in case there are more transitions to perform
 		// on this State
-		return getAllCandidateNewStatesRecursive(incoming, getVoices(), getLogProb(), 0);
+		return getAllCandidateNewStatesRecursive(getOpenVoiceIndices(incoming, voices), incoming, voices, logProb, 0);
 	}
 
 	/**
 	 * This method does the work for {@link #getAllCandidateNewStates(List)} recursively.
 	 * 
+	 * @param openVoiceIndices The open voice indices for each note, gotten from {@link #getOpenVoiceIndices(List, List)}
+	 * initially.
 	 * @param incoming A List of incoming notes.
 	 * @param newVoices A List of the Voices in this State as it is now. For each recursive call,
 	 * this should be a deep copy since the Voices that lie within will be changed.
 	 * @param logProbSum The sum of the current log probability of this State, including any transitions
 	 * already made recursively.
-	 * @param index The index of the note which we are tasked with transitioning on.
+	 * @param noteIndex The index of the note which we are tasked with transitioning on.
 	 * 
 	 * @return A List of all States which could be transitioned into given the parameters.
 	 */
-	private List<State> getAllCandidateNewStatesRecursive(List<MidiNote> incoming, List<SingleNoteVoice> newVoices, double logProbSum, int index) {
-		if (index == incoming.size()) {
+	private SortedSet<State> getAllCandidateNewStatesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming,
+			List<SingleNoteVoice> newVoices, double logProbSum, int noteIndex) {
+		if (noteIndex == incoming.size()) {
 			// Base case - no notes left to transition. Return a State based on the given Voices and log prob.
-			List<State> newStates = new ArrayList<State>(1);
-			newStates.add(new State(logProbSum, getDeepCopy(newVoices), params));
+			SortedSet<State> newStates = new TreeSet<State>();
+			newStates.add(new State(logProbSum, new ArrayList<SingleNoteVoice>(newVoices), params));
 			return newStates;
 		}
 		
 		// Setup
-		List<List<Integer>> openVoiceIndeces = getOpenVoiceIndeces(incoming.get(0).getOnsetTime(), incoming, newVoices);
-		List<State> newStates = new ArrayList<State>();
+		TreeSet<State> newStates = new TreeSet<State>();
+		
 		
 		// Calculate transition probabilities for starting new voices
 		double[] newVoiceProbs = new double[newVoices.size() + 1];
 		for (int i = 0; i < newVoiceProbs.length; i++) {
-			newVoiceProbs[i] = getTransitionProb(incoming.get(index), -i - 1, newVoices);
+			newVoiceProbs[i] = getTransitionProb(incoming.get(noteIndex), -i - 1, newVoices);
 		}
 		
 		int maxIndex = MathUtils.getMaxIndex(newVoiceProbs);
-
+		
 		if (maxIndex != -1) {
-			// There is a good place to add this one
-			double maxValue = newVoiceProbs[maxIndex];
-			
-			for (int i = 0; i < newVoiceProbs.length; i++) {
-				if (newVoiceProbs[i] == maxValue) {
-					// Add at any location with max probability
-					doTransition(incoming.get(index), -i - 1, newVoices);
-					newStates.addAll(getAllCandidateNewStatesRecursive(incoming, newVoices, logProbSum + newVoiceProbs[i], index + 1));
-					
-					// Fix for memory overflow - trim List as soon as we can
-					if (newStates.size() > params.BEAM_SIZE) {
-						Collections.sort(newStates);
-						newStates = new ArrayList<State>(newStates.subList(0, params.BEAM_SIZE));
-					}
-					
-					// The objects are mutable, so reverse changes. This helps with memory usage as well.
-					reverseTransition(-i - 1, newVoices);
-				}
-			}
+			// There is a good place to add a new voice
+			addNewVoicesRecursive(openVoiceIndices, incoming, newVoices, logProbSum, noteIndex, newVoiceProbs, newVoiceProbs[maxIndex], newStates);
 		}
+		
 		
 		// Add to existing voices
-		double[] existingVoiceProbs = new double[openVoiceIndeces.get(index).size()];
+		double[] existingVoiceProbs = new double[openVoiceIndices.get(noteIndex).size()];
 		for (int i = 0; i < existingVoiceProbs.length; i++) {
-			existingVoiceProbs[i] = getTransitionProb(incoming.get(index), openVoiceIndeces.get(index).get(i), newVoices);
+			existingVoiceProbs[i] = getTransitionProb(incoming.get(noteIndex), openVoiceIndices.get(noteIndex).get(i), newVoices);
 		}
 		
-		for (int i = 0; i < existingVoiceProbs.length; i++) {
-			// Try the transition
-			doTransition(incoming.get(index), openVoiceIndeces.get(index).get(i), newVoices);
-			newStates.addAll(getAllCandidateNewStatesRecursive(incoming, newVoices, logProbSum + existingVoiceProbs[i], index + 1));
-			
-			// Memory fix as above
-			if (newStates.size() > params.BEAM_SIZE) {
-				Collections.sort(newStates);
-				newStates = new ArrayList<State>(newStates.subList(0, params.BEAM_SIZE));
-			}
-			
-			// Reverse transition as above
-			reverseTransition(openVoiceIndeces.get(index).get(i), newVoices);
-		}
+		addToExistingVoicesRecursive(openVoiceIndices, incoming, newVoices, logProbSum, noteIndex, existingVoiceProbs, newStates);
 		
 		return newStates;
 	}
 
 	/**
-	 * Get a List of the indeces at which open voices are in the given List of Voices.
+	 * This method does the work for {@link #addNewVoicesRecursive(List, List, List, double, int, double[], double, SortedSet)}
+	 * of adding the notes into newly created voices.
 	 * 
-	 * @param onsetTime The time we want to check for open Voices.
+	 * @param openVoiceIndices The open voice indices for each note, gotten from {@link #getOpenVoiceIndices(List, List)}
+	 * initially.
+	 * @param incoming A List of incoming notes.
+	 * @param newVoices A List of the Voices in this State as it is now. For each recursive call,
+	 * this should be a deep copy since the Voices that lie within will be changed.
+	 * @param logProbSum The sum of the current log probability of this State, including any transitions
+	 * already made recursively.
+	 * @param noteIndex The index of the note which we are tasked with transitioning on.
+	 * @param newVoiceProbs The probability of adding the current note into a new voice at any given index.
+	 * @param maxValue The maximum value of any number in newVoiceProbs.
+	 * @param newStates The States List where we will add the newly created States.
+	 */
+	private void addNewVoicesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming, List<SingleNoteVoice> newVoices,
+			double logProbSum, int noteIndex, double[] newVoiceProbs, double maxValue, TreeSet<State> newStates) {
+		
+		for (int newVoiceIndex = 0; newVoiceIndex < newVoiceProbs.length; newVoiceIndex++) {
+			if (newVoiceProbs[newVoiceIndex] == maxValue) {
+				// Add at any location with max probability
+				doTransition(incoming.get(noteIndex), -newVoiceIndex - 1, newVoices);
+				
+				// Fix openVoiceIndices
+				for (int note = noteIndex + 1; note < openVoiceIndices.size(); note++) {
+					for (int voice = 0; voice < openVoiceIndices.get(note).size(); voice++) {
+						if (openVoiceIndices.get(note).get(voice) >= newVoiceIndex) {
+							openVoiceIndices.get(note).set(voice, openVoiceIndices.get(note).get(voice) + 1);
+						}
+					}
+				}
+				
+				// (Pseudo-)recursive call
+				newStates.addAll(getAllCandidateNewStatesRecursive(openVoiceIndices, incoming, newVoices, logProbSum + newVoiceProbs[newVoiceIndex], noteIndex + 1));
+				
+				// Fix for memory overflow - trim newStates as soon as we can
+				while (newStates.size() > params.BEAM_SIZE) {
+					newStates.pollLast();
+				}
+				
+				// The objects are mutable, so reverse changes. This helps with memory usage as well.
+				reverseTransition(-newVoiceIndex - 1, newVoices);
+				
+				// Reverse openVoiceIndices
+				for (int note = noteIndex + 1; note < openVoiceIndices.size(); note++) {
+					for (int voice = 0; voice < openVoiceIndices.get(note).size(); voice++) {
+						if (openVoiceIndices.get(note).get(voice) > newVoiceIndex) {
+							openVoiceIndices.get(note).set(voice, openVoiceIndices.get(note).get(voice) - 1);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * This method does the work for {@link #addNewVoicesRecursive(List, List, List, double, int, double[], double, SortedSet)}
+	 * of adding the notes into existing voices.
+	 * 
+	 * @param openVoiceIndices The open voice indices for each note, gotten from {@link #getOpenVoiceIndices(List, List)}
+	 * initially.
+	 * @param incoming A List of incoming notes.
+	 * @param newVoices A List of the Voices in this State as it is now. For each recursive call,
+	 * this should be a deep copy since the Voices that lie within will be changed.
+	 * @param logProbSum The sum of the current log probability of this State, including any transitions
+	 * already made recursively.
+	 * @param noteIndex The index of the note which we are tasked with transitioning on.
+	 * @param existingVoiceProbs The probability of adding this note into an existing voice at each index.
+	 * @param newStates The States List where we will add the newly created States.
+	 */
+	private void addToExistingVoicesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming,
+			List<SingleNoteVoice> newVoices, double logProbSum, int noteIndex, double[] existingVoiceProbs, TreeSet<State> newStates) {
+		
+		for (int openVoiceIndex = 0; openVoiceIndex < existingVoiceProbs.length; openVoiceIndex++) {
+			// Try the transition
+			int voiceIndex = openVoiceIndices.get(noteIndex).get(openVoiceIndex);
+			doTransition(incoming.get(noteIndex), voiceIndex, newVoices);
+			
+			// Fix openVoiceIndices
+			boolean[] removed = new boolean[openVoiceIndices.size()];
+			for (int note = noteIndex + 1; note < openVoiceIndices.size(); note++) {
+				removed[note] = openVoiceIndices.get(note).remove(new Integer(voiceIndex));
+			}
+			
+			// (Pseudo-)recursive call
+			newStates.addAll(getAllCandidateNewStatesRecursive(openVoiceIndices, incoming, newVoices, logProbSum + existingVoiceProbs[openVoiceIndex], noteIndex + 1));
+			
+			// Remove extras from newStates to save memory
+			while (newStates.size() > params.BEAM_SIZE) {
+				newStates.pollLast();
+			}
+			
+			// Reverse transition
+			reverseTransition(voiceIndex, newVoices);
+			
+			// Reverse openVoiceIndices
+			for (int j = noteIndex + 1; j < removed.length; j++) {
+				if (removed[j]) {
+					int note;
+					for (note = 0; note < openVoiceIndices.get(j).size() && openVoiceIndices.get(j).get(note) < voiceIndex; note++);
+					openVoiceIndices.get(j).add(note, voiceIndex);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get a List of the indices at which open voices are in the given List of Voices.
+	 * 
 	 * @param incoming A List of the MidiNotes which occur at the given onset time.
-	 * @param newVoices A List of the Voices we want to check.
+	 * @param voices A List of the Voices we want to check.
 	 * 
 	 * @return A List of the open voices in newVoices for each incoming note. <code>return.get(i).get(j)</code>
 	 * will return the index of the (j+1)th (since it is 0-indexed) open Voice in newVoices for the ith note
 	 * from incoming.
 	 */
-	private List<List<Integer>> getOpenVoiceIndeces(long onsetTime, List<MidiNote> incoming, List<SingleNoteVoice> newVoices) {
+	private List<List<Integer>> getOpenVoiceIndices(List<MidiNote> incoming, List<SingleNoteVoice> voices) {
+		long onsetTime = incoming.get(0).getOnsetTime();
 		List<List<Integer>> openIndices = new ArrayList<List<Integer>>(incoming.size());
 		
 		for (MidiNote note : incoming) {
 			List<Integer> noteOpen = new ArrayList<Integer>();
-			for (int i = 0; i < newVoices.size(); i++) {
-				if (newVoices.get(i).canAddNoteAtTime(onsetTime, note.getDurationTime())) {
+			for (int i = 0; i < voices.size(); i++) {
+				if (voices.get(i).canAddNoteAtTime(onsetTime, note.getDurationTime(), params)) {
 					noteOpen.add(i);
 				}
 			}
@@ -181,22 +263,6 @@ public class State implements Comparable<State> {
 		}
 		
 		return openIndices;
-	}
-
-	/**
-	 * Create a deep copy of the given List of Voices.
-	 * 
-	 * @param newVoices The List we want to get a deep copy of.
-	 * @return A new List, a deep copy of the given one.
-	 */
-	private List<SingleNoteVoice> getDeepCopy(List<SingleNoteVoice> newVoices) {
-		List<SingleNoteVoice> copy = new ArrayList<SingleNoteVoice>();
-		
-		for (SingleNoteVoice voice : newVoices) {
-			copy.add(new SingleNoteVoice(voice));
-		}
-		
-		return copy;
 	}
 	
 	/**
@@ -212,7 +278,7 @@ public class State implements Comparable<State> {
 			newVoices.remove(-transition - 1);
 			
 		} else {
-			newVoices.get(transition).removeLastNote();
+			newVoices.set(transition, newVoices.get(transition).getPrevious());
 		}
 	}
 
@@ -230,10 +296,11 @@ public class State implements Comparable<State> {
 		// point to that new Voice so the lower code works.
 		if (transition < 0) {
 			transition = -transition - 1;
-			newVoices.add(transition, new SingleNoteVoice(params));
+			newVoices.add(transition, new SingleNoteVoice(note));
+			
+		} else {
+			newVoices.set(transition, new SingleNoteVoice(note, newVoices.get(transition)));
 		}
-		
-		newVoices.get(transition).addNote(note);
 	}
 
 	/**
@@ -259,17 +326,17 @@ public class State implements Comparable<State> {
 			next = transition == newVoices.size() ? null : newVoices.get(transition);
 			
 		} else {
-			logProb = Math.log(newVoices.get(transition).getProbability(note));
+			logProb = Math.log(newVoices.get(transition).getProbability(note, params));
 			prev = transition == 0 ? null : newVoices.get(transition - 1);
 			next = transition == newVoices.size() - 1 ? null : newVoices.get(transition + 1);
 		}
 		
 		// Check if we are in the wrong order with the prev or next Voices (or both)
-		if (prev != null && note.getPitch() < prev.getLastNote().getPitch()) {
+		if (prev != null && note.getPitch() < prev.getMostRecentNote().getPitch()) {
 			logProb -= Math.log(2);
 		}
 			
-		if (next != null && note.getPitch() > next.getLastNote().getPitch()) {
+		if (next != null && note.getPitch() > next.getMostRecentNote().getPitch()) {
 			logProb -= Math.log(2);
 		}
 		
@@ -309,7 +376,8 @@ public class State implements Comparable<State> {
 		if (o == null) {
 			return -1;
 		}
-		return ((Double) o.getLogProb()).compareTo(getLogProb());
+		
+		return ((Double) o.getLogProb()).compareTo(logProb);
 	}
 	
 	@Override

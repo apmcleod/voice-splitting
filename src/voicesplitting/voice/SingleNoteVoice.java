@@ -1,5 +1,6 @@
 package voicesplitting.voice;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,64 +10,46 @@ import voicesplitting.utils.MidiNote;
 import voicesplitting.voice.hmm.VoiceSplittingParameters;
 
 /**
- * A <code>SingleNoteVoice</code> is a {@link Voice} which can only contain a
- * single {@link voicesplitting.utils.MidiNote} at a time.
+ * A <code>SingleNoteVoice</code> is a node in the LinkedList representing a
+ * voice. Each node has only a previous pointer and a {@link MidiNote}.
+ * Only a previous pointer is needed because we allow for Voices to split and clone themselves,
+ * keeping the beginning of their note sequences identical. This allows us to have multiple
+ * LinkedLists of notes without needing multiple full List objects. Rather, they all point
+ * back to their common prefix LinkedLists.
  * <p>
  * This is the Voice class used in the paper submitted to ISMIR 2015.
  * 
  * @author Andrew McLeod - 6 April, 2015
  */
-public class SingleNoteVoice extends Voice {
-	
+public class SingleNoteVoice {
 	/**
-	 * A node with the last note in this Voice. These are backwards-linked so we
-	 * can get the entire List of notes from this node.
+	 * The Voice ending at second to last note in this voice.
 	 */
-	private SingleNoteVoiceNode lastNoteNode;
+	private final SingleNoteVoice previous;
 	
 	/**
-	 * The parameters to use when splitting into voices.
+	 * The most recent note of this voice.
 	 */
-	private VoiceSplittingParameters params;
+	private final MidiNote mostRecentNote;
 	
 	/**
-	 * Create a new empty Voice.
+	 * Create a new Voice with the given previous voice.
 	 * 
-	 * @param params {@link #params}
+	 * @param note {@link #mostRecentNote}
+	 * @param prev {@link #previous}
 	 */
-	public SingleNoteVoice(VoiceSplittingParameters params) {
-		lastNoteNode = null;
-		this.params = params;
+	public SingleNoteVoice(MidiNote note, SingleNoteVoice prev) {
+		previous = prev;
+		mostRecentNote = note;
 	}
 	
 	/**
-	 * Create a new Voice with the given Voice's note list.
+	 * Create a new Voice.
 	 * 
-	 * @param voice The Voice we want to copy.
+	 * @param note {@link #mostRecentNote}
 	 */
-	public SingleNoteVoice(SingleNoteVoice voice) {
-		lastNoteNode = voice.getLastNoteNode();
-		params = voice.getParams();
-	}
-
-	/**
-	 * Add the given note to this Voice.
-	 * 
-	 * @param note The note to add to this Voice.
-	 */
-	public void addNote(MidiNote note) {
-		if (!canAddNoteAtTime(note.getOnsetTime(), note.getDurationTime())) {
-			System.out.println("INVALID ADD");
-		}
-		
-		lastNoteNode = new SingleNoteVoiceNode(lastNoteNode, note);
-	}
-	
-	/**
-	 * Remove the last note added to this Voice.
-	 */
-	public void removeLastNote() {
-		lastNoteNode = lastNoteNode.getPrev();	
+	public SingleNoteVoice(MidiNote note) {
+		this(note, null);
 	}
 	
 	/**
@@ -75,27 +58,23 @@ public class SingleNoteVoice extends Voice {
 	 * @param note The note we want to add.
 	 * @return The probability score for the given note.
 	 */
-	public double getProbability(MidiNote note) {
-		if (lastNoteNode == null) {
-			return params.NEW_VOICE_PROBABILITY;
-		}
-		
-		double pitch = pitchScore(getWeightedLastPitch(), note.getPitch());
-		double gap = gapScore(note.getOnsetTime(), getLastOffsetTime());
+	public double getProbability(MidiNote note, VoiceSplittingParameters params) {
+		double pitch = pitchScore(getWeightedLastPitch(params), note.getPitch(), params);
+		double gap = gapScore(note.getOnsetTime(), mostRecentNote.getOffsetTime(), params);
 		return pitch * gap;
 	}
 
 	/**
 	 * Get the pitch closeness of the two given pitches. This value should be higher
 	 * the closer together the two pitch values are. The first input parameter is a double
-	 * because it is drawn from {@link SingleNoteVoice#getWeightedLastPitch()}.
+	 * because it is drawn from {@link #getWeightedLastPitch(VoiceSplittingParameters)}.
 	 * 
-	 * @param weightedPitch A weighted pitch, drawn from {@link SingleNoteVoice#getWeightedLastPitch()}.
-	 * @param pitch2 An exact pitch.
+	 * @param weightedPitch A weighted pitch, drawn from {@link #getWeightedLastPitch(VoiceSplittingParameters)}.
+	 * @param pitch An exact pitch.
 	 * @return The pitch score of the given two pitches, a value between 0 and 1.
 	 */
-	private double pitchScore(double weightedPitch, int pitch2) {
-		return MathUtils.gaussianWindow(weightedPitch, pitch2, params.PITCH_STD);
+	private double pitchScore(double weightedPitch, int pitch, VoiceSplittingParameters params) {
+		return MathUtils.gaussianWindow(weightedPitch, pitch, params.PITCH_STD);
 	}
 
 	/**
@@ -106,61 +85,42 @@ public class SingleNoteVoice extends Voice {
 	 * @param time2 Another time.
 	 * @return The gap score of the two given time values, a value between 0 and 1.
 	 */
-	private double gapScore(long time1, long time2) {
+	private double gapScore(long time1, long time2, VoiceSplittingParameters params) {
 		double timeDiff = Math.abs(time2 - time1);
 		double inside = Math.max(0, -timeDiff / params.GAP_STD_MICROS + 1);
 		double log = Math.log(inside) + 1;
 		return Math.max(log, params.MIN_GAP_SCORE);
 	}
 	
-	@Override
-	public boolean canAddNoteAtTime(long time, long length) {
-		MidiNote last = getLastNote();
+	/**
+	 * Decide if we can add a note with the given length at the given time based on the given parameters.
+	 * 
+	 * @param time The onset time of the note we want to add.
+	 * @param length The length of the note we want to add.
+	 * @param params The parameters we're using.
+	 * @return True if we can add a note of the given duration at the given time. False otherwise.
+	 */
+	public boolean canAddNoteAtTime(long time, long length, VoiceSplittingParameters params) {
+		long overlap = mostRecentNote.getOffsetTime() - time;
 		
-		if (last == null) {
-			return true;
-		}
-		
-		long overlap = last.getOffsetTime() - time;
-		
-		if ((overlap <= last.getDurationTime() / 2 && overlap < length) ||
-				(overlap < last.getDurationTime() && overlap <= length / 2)) {
-			return true;
-		}
-		
-		return false;
+		return overlap <= mostRecentNote.getDurationTime() / 2 && overlap < length;
 	}
 
-	@Override
-	public long getLastOffsetTime() {
-		MidiNote last = getLastNote();
-		
-		return last == null ? 0 : last.getOffsetTime();
-	}
-
-	@Override
-	public MidiNote getLastNote() {
-		if (lastNoteNode == null) {
-			return null;
-		}
-		
-		return lastNoteNode.getNote();
-	}
-
-	@Override
-	public double getWeightedLastPitch() {
-		if (lastNoteNode == null) {
-			return 0;
-		}
-		
+	/**
+	 * Get the weighted pitch of this voice.
+	 * 
+	 * @param params The paramters we're using.
+	 * @return The weighted pitch of this voice.
+	 */
+	public double getWeightedLastPitch(VoiceSplittingParameters params) {
 		double weight = 1;
 		double totalWeight = 0;
 		double sum = 0;
 		
-		// Most recent PITCH_HISTORY_LENGTH chords
-		SingleNoteVoiceNode noteNode = lastNoteNode;
-		for (int i = 0; i < params.PITCH_HISTORY_LENGTH && noteNode != null; i++, noteNode = noteNode.getPrev()) {
-			sum += noteNode.getNote().getPitch() * weight;
+		// Most recent PITCH_HISTORY_LENGTH notes
+		SingleNoteVoice noteNode = this;
+		for (int i = 0; i < params.PITCH_HISTORY_LENGTH && noteNode != null; i++, noteNode = noteNode.previous) {
+			sum += noteNode.mostRecentNote.getPitch() * weight;
 			
 			totalWeight += weight;
 			weight *= 0.5;
@@ -169,21 +129,16 @@ public class SingleNoteVoice extends Voice {
 		return sum / totalWeight;
 	}
 
-	@Override
-	public int getNumNotes() {
-		if (lastNoteNode == null) {
-			return 0;
-		}
-		
-		return lastNoteNode.getNumNotes();
-	}
-
-	@Override
+	/**
+	 * Get the number of notes we've correctly grouped into this voice, based on the most common voice in the voice.
+	 * 
+	 * @return The number of notes we've assigned into this voice correctly.
+	 */
 	public int getNumNotesCorrect() {
 		Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
 		
-		for (SingleNoteVoiceNode noteNode = lastNoteNode; noteNode != null; noteNode = noteNode.getPrev()) {
-			int track = noteNode.getNote().getTrackNumber();
+		for (SingleNoteVoice noteNode = this; noteNode != null; noteNode = noteNode.previous) {
+			int track = noteNode.mostRecentNote.getTrackNumber();
 			if (!counts.containsKey(track)) {
 				counts.put(track, 0);
 			}
@@ -210,9 +165,9 @@ public class SingleNoteVoice extends Voice {
 		int count = 0;
 		int index = -1;
 		
-		for (SingleNoteVoiceNode node = lastNoteNode; node.getPrev() != null; node = node.getPrev()) {
-			MidiNote guessedPrev = node.getPrev().getNote();
-			MidiNote note = node.getNote();
+		for (SingleNoteVoice node = this; node.previous != null; node = node.previous) {
+			MidiNote guessedPrev = node.previous.mostRecentNote;
+			MidiNote note = node.mostRecentNote;
 			
 			if (note.getTrackNumber() == guessedPrev.getTrackNumber()) {
 				int track = note.getTrackNumber();
@@ -242,34 +197,51 @@ public class SingleNoteVoice extends Voice {
 	}
 	
 	/**
-	 * Get a List of the MidiNotes contained by this Voice, in order.
+	 * Get the number of notes in the linked list with this node as its tail.
 	 * 
-	 * @return An ordered List of the MidiNotes in this Voice.
+	 * @return The number of notes.
+	 */
+	public int getNumNotes() {
+		if (previous == null) {
+			return 1;
+		}
+		
+		return 1 + previous.getNumNotes();
+	}
+
+	/**
+	 * Get the List of notes which this node is the tail of, in chronological order.
+	 * 
+	 * @return A List of notes in chronological order, ending with this one.
 	 */
 	public List<MidiNote> getNotes() {
-		return lastNoteNode.getList();
+		List<MidiNote> list = previous == null ? new ArrayList<MidiNote>() : previous.getNotes();
+		
+		list.add(mostRecentNote);
+		
+		return list;
 	}
 	
 	/**
-	 * Get the node of the most recent note in this Voice.
+	 * Get the most recent note in this voice.
 	 * 
-	 * @return {@link #lastNoteNode}
+	 * @return {@link #mostRecentNote}
 	 */
-	public SingleNoteVoiceNode getLastNoteNode() {
-		return lastNoteNode;
+	public MidiNote getMostRecentNote() {
+		return mostRecentNote;
 	}
 	
 	/**
-	 * Get the parameters we are using.
+	 * Get the voice ending at the previous note in this voice.
 	 * 
-	 * @return {@link #params}
+	 * @return {@link #previous}
 	 */
-	private VoiceSplittingParameters getParams() {
-		return params;
+	public SingleNoteVoice getPrevious() {
+		return previous;
 	}
 	
 	@Override
 	public String toString() {
-		return lastNoteNode.getList().toString();
+		return getNotes().toString();
 	}
 }
