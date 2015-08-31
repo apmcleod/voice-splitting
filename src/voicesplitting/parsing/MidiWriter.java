@@ -195,11 +195,11 @@ public class MidiWriter {
 		Track track = sequence.getTracks()[trackNumber];
 		
 		ShortMessage noteOn = new ShortMessage();
-		noteOn.setMessage(ShortMessage.NOTE_ON, note.getPitch(), note.getVelocity());
+		noteOn.setMessage(ShortMessage.NOTE_ON | trackNumber, note.getPitch(), note.getVelocity());
 		MidiEvent noteOnEvent = new MidiEvent(noteOn, note.getOnsetTick());
 		
 		ShortMessage noteOff = new ShortMessage();
-		noteOff.setMessage(ShortMessage.NOTE_OFF, note.getPitch(), 0);
+		noteOff.setMessage(ShortMessage.NOTE_OFF | trackNumber, note.getPitch(), 0);
 		MidiEvent noteOffEvent = new MidiEvent(noteOff, note.getOffsetTick());
 		
 		track.add(noteOnEvent);
