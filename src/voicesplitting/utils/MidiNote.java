@@ -209,7 +209,7 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * @return The duration in microseconds.
 	 */
 	public long getDurationTime() {
-		return getOffsetTime() - getOnsetTime();
+		return offsetTime - onsetTime;
 	}
 	
 	/**
