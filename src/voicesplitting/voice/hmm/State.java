@@ -132,7 +132,7 @@ public class State implements Comparable<State> {
 	}
 
 	/**
-	 * This method does the work for {@link #addNewVoicesRecursive(List, List, List, double, int, double[], double, SortedSet)}
+	 * This method does the work for {@link #getAllCandidateNewStatesRecursive(List, List, List, double, int)}
 	 * of adding the notes into newly created voices.
 	 * 
 	 * @param openVoiceIndices The open voice indices for each note, gotten from {@link #getOpenVoiceIndices(List, List)}
@@ -188,7 +188,7 @@ public class State implements Comparable<State> {
 	}
 	
 	/**
-	 * This method does the work for {@link #addNewVoicesRecursive(List, List, List, double, int, double[], double, SortedSet)}
+	 * This method does the work for {@link #getAllCandidateNewStatesRecursive(List, List, List, double, int)}
 	 * of adding the notes into existing voices.
 	 * 
 	 * @param openVoiceIndices The open voice indices for each note, gotten from {@link #getOpenVoiceIndices(List, List)}
