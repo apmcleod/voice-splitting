@@ -477,7 +477,7 @@ public class NoteDisplayer extends JPanel {
 		for (MidiNoteGUI noteGui : highlightedNotes) {
 			MidiNote note = noteGui.getNote();
 			
-			gS.get(note.getTrackNumber()).remove(note);
+			gS.get(note.getChannel()).remove(note);
 			
 			List<MidiNote> goldVoice = gS.get(track);
 			int index = 0;
@@ -486,7 +486,7 @@ public class NoteDisplayer extends JPanel {
 			}
 			goldVoice.add(index, note);
 			
-			note.setTrack(track);
+			note.setChannel(track);
 			
 			noteGui.setBackground(MidiNoteGUI.getColor(track));
 			noteGui.updateBorder();
@@ -536,7 +536,7 @@ public class NoteDisplayer extends JPanel {
 			
 			MidiNote note = noteGui.getNote();
 			gui.getRunner().getNotes().remove(note);
-			gui.getRunner().getGoldStandardVoices().get(note.getTrackNumber()).remove(note);
+			gui.getRunner().getGoldStandardVoices().get(note.getChannel()).remove(note);
 		}
 		
 		highlightedNotes.clear();
@@ -567,7 +567,7 @@ public class NoteDisplayer extends JPanel {
 			if (soloedTracks.size() == 1) {
 				// This is the first soloed track - remove all other notes
 				for (Component comp : getComponents()) {
-					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getTrackNumber() != track) {
+					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() != track) {
 						comp.setVisible(false);
 					}
 				}
@@ -575,7 +575,7 @@ public class NoteDisplayer extends JPanel {
 			} else {
 				// There are other tracks soloed already - make this track's notes visible
 				for (Component comp : getComponents()) {
-					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getTrackNumber() == track) {
+					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() == track) {
 						comp.setVisible(true);
 					}
 				}
@@ -592,7 +592,7 @@ public class NoteDisplayer extends JPanel {
 				// There are others still soloed - hide this track's notes
 				soloedTracks.remove(track);
 				for (Component comp : getComponents()) {
-					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getTrackNumber() == track) {
+					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() == track) {
 						comp.setVisible(false);
 					}
 				}

@@ -184,7 +184,7 @@ public class MidiWriter {
 	 * @throws InvalidMidiDataException If the MidiNote contains invalid Midi data. 
 	 */
 	public void addMidiNote(MidiNote note) throws InvalidMidiDataException {
-		int trackNumber = note.getTrackNumber();
+		int trackNumber = note.getChannel();
 		
 		// Pad with enough tracks
 		while (sequence.getTracks().length <= trackNumber) {

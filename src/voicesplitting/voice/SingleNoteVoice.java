@@ -138,7 +138,7 @@ public class SingleNoteVoice {
 		Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
 		
 		for (SingleNoteVoice noteNode = this; noteNode != null; noteNode = noteNode.previous) {
-			int track = noteNode.mostRecentNote.getTrackNumber();
+			int track = noteNode.mostRecentNote.getChannel();
 			if (!counts.containsKey(track)) {
 				counts.put(track, 0);
 			}
@@ -169,8 +169,8 @@ public class SingleNoteVoice {
 			MidiNote guessedPrev = node.previous.mostRecentNote;
 			MidiNote note = node.mostRecentNote;
 			
-			if (note.getTrackNumber() == guessedPrev.getTrackNumber()) {
-				int track = note.getTrackNumber();
+			if (note.getChannel() == guessedPrev.getChannel()) {
+				int track = note.getChannel();
 				if (index == -1) {
 					// No valid index - refind
 					index = goldStandard.get(track).indexOf(note);
