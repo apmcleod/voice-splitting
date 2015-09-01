@@ -3,6 +3,7 @@ package voicesplitting.parsing;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -103,7 +104,6 @@ public class EventParser {
      */
     public void run() throws InvalidMidiDataException, InterruptedException {
         for (Track track : song.getTracks()) {
-        	List<MidiNote> goldVoice = new ArrayList<MidiNote>();
         	// multi-track support
         	
             for (int i = 0; i < track.size(); i++) {
@@ -154,7 +154,10 @@ public class EventParser {
 	                        
 	                        if (velocity != 0) {
 	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), channel);
-	                        	goldVoice.add(note);
+	                        	while (goldStandard.size() <= channel) {
+	                        		goldStandard.add(new ArrayList<MidiNote>());
+	                        	}
+	                        	goldStandard.get(channel).add(note);
 	                        	break;
 	                        }
 	                        
@@ -172,7 +175,10 @@ public class EventParser {
 	                }
 	            }
             }
-            goldStandard.add(goldVoice);
+        }
+        
+        for (List<MidiNote> gS : goldStandard) {
+        	Collections.sort(gS);
         }
     }
     

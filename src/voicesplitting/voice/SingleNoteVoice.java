@@ -174,9 +174,6 @@ public class SingleNoteVoice {
 				if (index == -1) {
 					// No valid index - refind
 					index = goldStandard.get(channel).indexOf(note);
-					if (index == -1) {
-						System.out.println("OUCH");
-					}
 				}
 				
 				if (index != 0 && goldStandard.get(channel).get(--index).equals(guessedPrev)) {
