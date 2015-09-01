@@ -32,6 +32,16 @@ import voicesplitting.utils.MidiNote;
  */
 public class EventParser {
 	/**
+	 * The mask for reading the channel number from a MidiMessage.
+	 */
+	public static final int CHANNEL_MASK = 0x0f;
+	
+	/**
+	 * The mask for reading the message type from a MidiMessage.
+	 */
+	public static final int MESSAGE_MASK = 0xf0;
+	
+	/**
 	 * The constant which midi uses for tempo change events.
 	 */
 	public static final int TEMPO = 0x51;
@@ -92,9 +102,8 @@ public class EventParser {
      * @throws InterruptedException If this is running on a GUI and gets cancelled.
      */
     public void run() throws InvalidMidiDataException, InterruptedException {
-        for (int j = 0; j < song.getTracks().length; j++) {
+        for (Track track : song.getTracks()) {
         	List<MidiNote> goldVoice = new ArrayList<MidiNote>();
-        	Track track = song.getTracks()[j];
         	// multi-track support
         	
             for (int i = 0; i < track.size(); i++) {
@@ -134,7 +143,8 @@ public class EventParser {
                 	}
                 	
                 } else {
-	                switch (status & 0xf0) {
+                	int channel = status & CHANNEL_MASK;
+	                switch (status & MESSAGE_MASK) {
 		                	
 	                	case ShortMessage.NOTE_ON:
 	                		sm = (ShortMessage) message;
@@ -143,7 +153,7 @@ public class EventParser {
 	                        velocity = sm.getData2();
 	                        
 	                        if (velocity != 0) {
-	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), j);
+	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), channel);
 	                        	goldVoice.add(note);
 	                        	break;
 	                        }
@@ -154,7 +164,7 @@ public class EventParser {
 	                		
 	                		key = sm.getData1();
 	                		
-	                        noteEventParser.noteOff(key, event.getTick(), j);
+	                        noteEventParser.noteOff(key, event.getTick(), channel);
 	                        break;
 	                        
 	                    default:

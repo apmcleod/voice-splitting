@@ -30,7 +30,7 @@ public class MidiNoteGUIPopupMenu extends JPopupMenu {
 	private final ActionListener voiceListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			displayer.changeHighlightedTracks(Integer.parseInt(((JMenuItem) e.getSource()).getText()));
+			displayer.changeHighlightedChannels(Integer.parseInt(((JMenuItem) e.getSource()).getText()));
 		}
 	};
 	

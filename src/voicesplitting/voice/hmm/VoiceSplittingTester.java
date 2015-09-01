@@ -334,7 +334,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 			// The size of this Set will be the true number of voices in this song.
 			Set<Integer> voiceCount = new HashSet<Integer>();
 			for (MidiNote note : song) {
-				voiceCount.add(note.getTrackNumber());
+				voiceCount.add(note.getChannel());
 			}
 			
 			voiceAccSongSum = 0;

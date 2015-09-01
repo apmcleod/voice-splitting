@@ -40,7 +40,7 @@ public class MidiNoteGUI extends JLabel {
 		
 		setScale(horizontalScale, verticalScale);
 		setOpaque(true);
-		setBackground(getColor(note.getTrackNumber()));
+		setBackground(getColor(note.getChannel()));
 		setDefaultBorder(false);
 		
 		addMouseListener(MidiNoteGUIMouseListener.listener);
@@ -248,7 +248,7 @@ public class MidiNoteGUI extends JLabel {
 		sb.append("Offset Time: ").append(note.getOffsetTime()).append("<br>");
 		sb.append("Onset Tick: ").append(note.getOnsetTick()).append("<br>");
 		sb.append("Offset Tick: ").append(note.getOffsetTick()).append("<br>");
-		sb.append("Track: ").append(note.getTrackNumber()).append("<br>");
+		sb.append("Channel: ").append(note.getChannel()).append("<br>");
 		
 		if (isVoices() && note.getGuessedVoice() != -1) {
 			sb.append("Guessed Voice: ").append(note.getGuessedVoice()).append("<br>");

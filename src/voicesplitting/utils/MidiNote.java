@@ -16,9 +16,9 @@ package voicesplitting.utils;
 public class MidiNote implements Comparable<MidiNote> {
 	
 	/**
-	 * The midi track which this note came from.
+	 * The midi channel which this note came from.
 	 */
-	private int track;
+	private int channel;
 	
 	/**
 	 * The onset time of this note, measured in microseconds.
@@ -72,16 +72,16 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * @param velocity {@link #velocity}
 	 * @param onsetTime {@link #onsetTime}
 	 * @param onsetTick {@link #onsetTick}
-	 * @param track {@link #track}
+	 * @param channel {@link #channel}
 	 * @param guessedVoice {@link #guessedVoice}
 	 */
-	public MidiNote(int key, int velocity, long onsetTime, long onsetTick, Beat beat, int track, int guessedVoice) {
+	public MidiNote(int key, int velocity, long onsetTime, long onsetTick, Beat beat, int channel, int guessedVoice) {
 		this.pitch = key;
 		this.velocity = velocity;
 		this.onsetTime = onsetTime;
 		this.onsetTick = onsetTick;
 		this.onsetBeat = beat;
-		this.track = track;
+		this.channel = channel;
 		offsetTime = 0;
 		offsetTick = 0;
 		this.guessedVoice = guessedVoice;
@@ -249,21 +249,21 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 
 	/**
-	 * Get the track number of this note.
+	 * Get the channel of this note.
 	 * 
-	 * @return {@link #track}
+	 * @return {@link #channel}
 	 */
-	public int getTrackNumber() {
-		return track;
+	public int getChannel() {
+		return channel;
 	}
 	
 	/**
 	 * Set the track number of this note to a new value.
 	 * 
-	 * @param track {@link #track}
+	 * @param channel {@link #channel}
 	 */
-	public void setTrack(int track) {
-		this.track = track;
+	public void setChannel(int channel) {
+		this.channel = channel;
 	}
 	
 	/**
@@ -293,7 +293,7 @@ public class MidiNote implements Comparable<MidiNote> {
 		Beat newOnsetBeat = onsetBeat.shallowCopy();
 		Beat newOffsetBeat = offsetBeat.shallowCopy();
 		
-		MidiNote copy = new MidiNote(pitch, velocity, onsetTime, onsetTick, newOnsetBeat, track, guessedVoice);
+		MidiNote copy = new MidiNote(pitch, velocity, onsetTime, onsetTick, newOnsetBeat, channel, guessedVoice);
 		copy.setOffset(offsetTime, offsetTick, newOffsetBeat);
 		
 		newOnsetBeat.setNote(copy);
@@ -304,7 +304,7 @@ public class MidiNote implements Comparable<MidiNote> {
 	
 	@Override
 	public String toString() {
-		return String.format("(K:%d  V:%d  [%d-%d] %s %d)", pitch, velocity, onsetTick, offsetTick, onsetBeat.toString(), track);
+		return String.format("(K:%d  V:%d  [%d-%d] %s %d)", pitch, velocity, onsetTick, offsetTick, onsetBeat.toString(), channel);
 	}
 
 	@Override

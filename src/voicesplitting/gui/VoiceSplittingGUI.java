@@ -229,17 +229,17 @@ public class VoiceSplittingGUI extends JFrame {
 		// Track solo buttons
 		soloButtons = new JButton[16];
 		for (int i = 0; i < 16; i++) {
-			final int track = i;
+			final int channel = i;
 			JButton soloButton = new JButton();
 			soloButton.setMargin(new Insets(0, 0, 0, 0));
 			soloButton.setBorder(BorderFactory.createRaisedBevelBorder());
 			soloButton.setPreferredSize(new Dimension(GUIConstants.ZOOM_BUTTON_SIZE, GUIConstants.ZOOM_BUTTON_SIZE));
 			soloButton.setBackground(MidiNoteGUI.getColor(i));
-			soloButton.setToolTipText("Toggle solo track " + i);
+			soloButton.setToolTipText("Toggle solo channel " + i);
 			soloButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					noteDisplayer.toggleSolo(track);
-					if (noteDisplayer.isSoloed(track)) {
+					noteDisplayer.toggleSolo(channel);
+					if (noteDisplayer.isSoloed(channel)) {
 						((JButton) e.getSource()).setBorder(BorderFactory.createLoweredBevelBorder());
 						
 					} else {
@@ -257,7 +257,7 @@ public class VoiceSplittingGUI extends JFrame {
 		clearSolos.setBorder(BorderFactory.createRaisedBevelBorder());
 		clearSolos.setForeground(Color.RED);
 		clearSolos.setPreferredSize(new Dimension(GUIConstants.ZOOM_BUTTON_SIZE, GUIConstants.ZOOM_BUTTON_SIZE));
-		clearSolos.setToolTipText("Unsolo all tracks");
+		clearSolos.setToolTipText("Unsolo all channels");
 		clearSolos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for (JButton button : soloButtons) {
