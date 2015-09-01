@@ -138,12 +138,12 @@ public class SingleNoteVoice {
 		Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
 		
 		for (SingleNoteVoice noteNode = this; noteNode != null; noteNode = noteNode.previous) {
-			int track = noteNode.mostRecentNote.getChannel();
-			if (!counts.containsKey(track)) {
-				counts.put(track, 0);
+			int channel = noteNode.mostRecentNote.getChannel();
+			if (!counts.containsKey(channel)) {
+				counts.put(channel, 0);
 			}
 				
-			counts.put(track, counts.get(track) + 1);
+			counts.put(channel, counts.get(channel) + 1);
 		}
 				
 		int maxCount = -1;
@@ -156,7 +156,7 @@ public class SingleNoteVoice {
 	
 	/**
 	 * Get the number of links in this Voice which are correct. That is, the number of times
-	 * that two consecutive notes belong to the same midi track.
+	 * that two consecutive notes belong to the same midi channel.
 	 * 
 	 * @param goldStandard The gold standard voices for this song.
 	 * @return The number of times that two consecutive notes belong to the same midi track.
@@ -170,16 +170,16 @@ public class SingleNoteVoice {
 			MidiNote note = node.mostRecentNote;
 			
 			if (note.getChannel() == guessedPrev.getChannel()) {
-				int track = note.getChannel();
+				int channel = note.getChannel();
 				if (index == -1) {
 					// No valid index - refind
-					index = goldStandard.get(track).indexOf(note);
+					index = goldStandard.get(channel).indexOf(note);
 					if (index == -1) {
 						System.out.println("OUCH");
 					}
 				}
 				
-				if (index != 0 && goldStandard.get(track).get(--index).equals(guessedPrev)) {
+				if (index != 0 && goldStandard.get(channel).get(--index).equals(guessedPrev)) {
 					// Match!
 					count++;
 					
@@ -188,7 +188,7 @@ public class SingleNoteVoice {
 					index = -1;
 				}
 			} else {
-				// Different track - invalidate index
+				// Different channel - invalidate index
 				index = -1;
 			}
 		}
