@@ -82,9 +82,9 @@ public class NoteDisplayer extends JPanel {
 	private MidiNoteGUI lastClicked;
 	
 	/**
-	 * A Set of the currently soloed tracks.
+	 * A Set of the currently soloed channels.
 	 */
-	private Set<Integer> soloedTracks;
+	private Set<Integer> soloedChannels;
 	
 	/**
 	 * Create a new default NoteDisplayer.
@@ -117,7 +117,7 @@ public class NoteDisplayer extends JPanel {
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		
 		highlightedNotes = new HashSet<MidiNoteGUI>();
-		soloedTracks = new HashSet<Integer>();
+		soloedChannels = new HashSet<Integer>();
 		
 		addMouseListener(new MouseAdapter() {
 			@Override
@@ -462,33 +462,33 @@ public class NoteDisplayer extends JPanel {
 	}
 
 	/**
-	 * Change the track of the highlighted notes to the given value.
+	 * Change the channel of the highlighted notes to the given value.
 	 * 
-	 * @param track The track we want to change the notes to.
+	 * @param channel The channel we want to change the notes to.
 	 */
-	public void changeHighlightedTracks(int track) {
+	public void changeHighlightedChannels(int channel) {
 		VoiceSplittingGUI gui = (VoiceSplittingGUI) SwingUtilities.getWindowAncestor(this);
 		List<List<MidiNote>> gS = gui.getRunner().getGoldStandardVoices();
-		while (gS.size() <= track) {
+		while (gS.size() <= channel) {
 			gS.add(new ArrayList<MidiNote>());
 		}
 		
-		boolean visible = soloedTracks.isEmpty() || soloedTracks.contains(track); 
+		boolean visible = soloedChannels.isEmpty() || soloedChannels.contains(channel); 
 		for (MidiNoteGUI noteGui : highlightedNotes) {
 			MidiNote note = noteGui.getNote();
 			
 			gS.get(note.getChannel()).remove(note);
 			
-			List<MidiNote> goldVoice = gS.get(track);
+			List<MidiNote> goldVoice = gS.get(channel);
 			int index = 0;
 			while (index < goldVoice.size() && note.compareTo(goldVoice.get(index)) > 0) {
 				index++;
 			}
 			goldVoice.add(index, note);
 			
-			note.setChannel(track);
+			note.setChannel(channel);
 			
-			noteGui.setBackground(MidiNoteGUI.getColor(track));
+			noteGui.setBackground(MidiNoteGUI.getColor(channel));
 			noteGui.updateBorder();
 			noteGui.setVisible(visible);
 		}
@@ -556,43 +556,43 @@ public class NoteDisplayer extends JPanel {
 	}
 
 	/**
-	 * Toggle the soloing of the given track.
+	 * Toggle the soloing of the given channel.
 	 * 
-	 * @param track The index of the track to solo.
+	 * @param channel The index of the channel to solo.
 	 */
-	public void toggleSolo(int track) {
-		if (soloedTracks.add(track)) {
-			// This track was not yet soloed
+	public void toggleSolo(int channel) {
+		if (soloedChannels.add(channel)) {
+			// This channel was not yet soloed
 			
-			if (soloedTracks.size() == 1) {
-				// This is the first soloed track - remove all other notes
+			if (soloedChannels.size() == 1) {
+				// This is the first soloed channel - remove all other notes
 				for (Component comp : getComponents()) {
-					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() != track) {
+					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() != channel) {
 						comp.setVisible(false);
 					}
 				}
 				
 			} else {
-				// There are other tracks soloed already - make this track's notes visible
+				// There are other channels soloed already - make this track's notes visible
 				for (Component comp : getComponents()) {
-					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() == track) {
+					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() == channel) {
 						comp.setVisible(true);
 					}
 				}
 			}
 			
 		} else {
-			// This track was already soloed
+			// This channel was already soloed
 			
-			if (soloedTracks.size() == 1) {
-				// This track was the only one soloed - clear all
+			if (soloedChannels.size() == 1) {
+				// This channel was the only one soloed - clear all
 				clearAllSolos();
 				
 			} else {
-				// There are others still soloed - hide this track's notes
-				soloedTracks.remove(track);
+				// There are others still soloed - hide this channel's notes
+				soloedChannels.remove(channel);
 				for (Component comp : getComponents()) {
-					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() == track) {
+					if (comp instanceof MidiNoteGUI && ((MidiNoteGUI) comp).getNote().getChannel() == channel) {
 						comp.setVisible(false);
 					}
 				}
@@ -601,10 +601,10 @@ public class NoteDisplayer extends JPanel {
 	}
 
 	/**
-	 * Clear all soloed tracks. That is, make all tracks visible.
+	 * Clear all soloed channels. That is, make all channels visible.
 	 */
 	public void clearAllSolos() {
-		if (!soloedTracks.isEmpty()) {
+		if (!soloedChannels.isEmpty()) {
 			// There were soloed tracks
 			for (Component comp : getComponents()) {
 				if (comp instanceof MidiNoteGUI) {
@@ -612,18 +612,18 @@ public class NoteDisplayer extends JPanel {
 				}
 			}
 			
-			soloedTracks.clear();
+			soloedChannels.clear();
 		}
 	}
 	
 	/**
-	 * Return if the given track is soloed or not.
+	 * Return if the given channel is soloed or not.
 	 * 
-	 * @param track The track we want to check.
-	 * @return True if the track is currently soloed. False otherwise.
+	 * @param channel The channel we want to check.
+	 * @return True if the channel is currently soloed. False otherwise.
 	 */
-	public boolean isSoloed(int track) {
-		return soloedTracks.contains(track);
+	public boolean isSoloed(int channel) {
+		return soloedChannels.contains(channel);
 	}
 	
 	/**
