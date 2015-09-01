@@ -48,11 +48,11 @@ public class NoteListGenerator implements NoteEventParser {
 	}
 	
 	@Override
-	public MidiNote noteOn(int key, int velocity, long tick, int track) {
+	public MidiNote noteOn(int key, int velocity, long tick, int channel) {
 		long time = timeTracker.getTimeAtTick(tick);
 		Beat beat = timeTracker.getBeatAtTick(tick);
 		
-		MidiNote note = new MidiNote(key, velocity, time, tick, beat, track, -1);
+		MidiNote note = new MidiNote(key, velocity, time, tick, beat, channel, -1);
 		
 		activeNotes.add(note);
 		
@@ -60,14 +60,14 @@ public class NoteListGenerator implements NoteEventParser {
 	}
 
 	@Override
-	public void noteOff(int key, long tick, int track) throws InvalidMidiDataException {
+	public void noteOff(int key, long tick, int channel) throws InvalidMidiDataException {
 		long time = timeTracker.getTimeAtTick(tick);
 		Iterator<MidiNote> iterator = activeNotes.iterator();
 		
 		while (iterator.hasNext()) {
 			MidiNote note = iterator.next();
 			
-			if (note.getPitch() == key && note.getChannel() == track) {
+			if (note.getPitch() == key && note.getChannel() == channel) {
 				iterator.remove();
 				note.close(time, tick, timeTracker.getBeatAtTick(tick));
 				completedNotes.add(note);

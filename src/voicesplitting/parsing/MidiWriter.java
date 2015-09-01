@@ -184,22 +184,22 @@ public class MidiWriter {
 	 * @throws InvalidMidiDataException If the MidiNote contains invalid Midi data. 
 	 */
 	public void addMidiNote(MidiNote note) throws InvalidMidiDataException {
-		int trackNumber = note.getChannel();
+		int channel = note.getChannel();
 		
 		// Pad with enough tracks
-		while (sequence.getTracks().length <= trackNumber) {
+		while (sequence.getTracks().length <= channel) {
 			sequence.createTrack();
 		}
 		
 		// Get the correct track
-		Track track = sequence.getTracks()[trackNumber];
+		Track track = sequence.getTracks()[channel];
 		
 		ShortMessage noteOn = new ShortMessage();
-		noteOn.setMessage(ShortMessage.NOTE_ON | trackNumber, note.getPitch(), note.getVelocity());
+		noteOn.setMessage(ShortMessage.NOTE_ON | channel, note.getPitch(), note.getVelocity());
 		MidiEvent noteOnEvent = new MidiEvent(noteOn, note.getOnsetTick());
 		
 		ShortMessage noteOff = new ShortMessage();
-		noteOff.setMessage(ShortMessage.NOTE_OFF | trackNumber, note.getPitch(), 0);
+		noteOff.setMessage(ShortMessage.NOTE_OFF | channel, note.getPitch(), 0);
 		MidiEvent noteOffEvent = new MidiEvent(noteOff, note.getOffsetTick());
 		
 		track.add(noteOnEvent);
