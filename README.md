@@ -16,10 +16,10 @@ included with the project with the following command: `make`.
 ## Running
 Once the class files are installed in the bin directory, the project can be run. To run the
 GUI version of the project, use the command `java -cp bin voicesplitting.gui.VoiceSplittingGUI`.
-To run the project from the command line, use the command `$ java -cp bin voicesplitting.voice.hmm.VoiceSplittingTester`.
+To run the project from the command line, use the command `$ java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester`.
 You should get an argument error. The proper arguments for running the VoiceSplittingTester are as follows:
 
-`java -cp bin voicesplitting.voice.hmm.VoiceSplittingTester ARGS Files`
+`java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester ARGS Files`
 
 ARGS:
  * Running arguments:
@@ -40,13 +40,13 @@ files. Any directory entered will be searched recursively for files.
 
 ### Examples
 To tune on the files in the directory "midi" with a step of 7 and print verbose results:
- * `$ java beattracking/voice/hmm/VoiceSplittingTester -t 7 -v midi`
+ * `$ java -cp bin beattracking.voice.hmm.HmmVoiceSplittingModelTester -t 7 -v midi`
 
 To test on the files in the directory "midi" using all default values except a beam size of 25:
- * `$ java beattracking/voice/hmm/VoiceSplittingTester -r -b 25 midi`
+ * `$ java -cp bin beattracking.voice.hmm.HmmVoiceSplittingModelTester -r -b 25 midi`
 
 To train and test on the files in the directory "midi" using a step of 10 in training:
- * `$ java beattracking/voice/hmm/VoiceSplittingTester -t 10 -r midi`
+ * `$ java -cp bin beattracking.voice.hmm.HmmVoiceSplittingModelTester -t 10 -r midi`
 
 
 ### Troubleshooting
@@ -77,7 +77,7 @@ ep.run();
 List<MidiNote> noteList = nlg.getNoteList());
 ```
 
-An `EventParser` can also be used to play a MIDI file, and write out to a new file.
+An `EventParser` can also be used to play a MIDI file.
 
 #### Time Events
 Time events are all handled by classes in the `beattracking.time` class using the interface
@@ -105,12 +105,4 @@ package `voicesplitting.parsing`. There are two types of note events:
 
 ### Voice Separation
 All voice separation code is found in the `voicesplitting.voice` package, and it can be performed
-by any class implementing the `VoiceSplitter` interface there, which only necessitates that it
-contains a method `getVoices()` which returns a `List` of some objects implementing the `Voice`
-abstract class. The standard voice separation is done as follows after creating a `List` of
-`MidiNotes` as shown above in [MIDI Parsing](#midi-parsing):
-
-```
-VoiceSplitter vs = new HmmVoiceSplitter(noteList, new VoiceSplittingParameters());
-List<Voice> = vs.getVoices();
-```
+by any class implementing the `VoiceSplittingModel` interface there.
