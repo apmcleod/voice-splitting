@@ -1,11 +1,11 @@
 package voicesplitting.voice.hmm;
 
 /**
- * The parameters to use for an {@link HmmVoiceSplitter}.
+ * The parameters to use for an {@link HmmVoiceSplittingModel}.
  * 
  * @author Andrew McLeod - 13 April, 2015
  */
-public class VoiceSplittingParameters {
+public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSplittingModelParameters> {
 	/**
 	 * The minimum possible gap score we will give out.
 	 */
@@ -49,7 +49,7 @@ public class VoiceSplittingParameters {
 	 * @param PS {@link #PITCH_STD}
 	 * @param MGS {@link #MIN_GAP_SCORE}
 	 */
-	public VoiceSplittingParameters(int BS, double NVP, int PHL, double GSM, double PS, double MGS) {
+	public HmmVoiceSplittingModelParameters(int BS, double NVP, int PHL, double GSM, double PS, double MGS) {
 		BEAM_SIZE = BS;
 		NEW_VOICE_PROBABILITY = NVP;
 		PITCH_HISTORY_LENGTH = PHL;
@@ -61,25 +61,34 @@ public class VoiceSplittingParameters {
 	/**
 	 * Create new params with default values.
 	 */
-	public VoiceSplittingParameters() {
+	public HmmVoiceSplittingModelParameters() {
 		this(25, 1.09E-8, 6, 224000, 5.5, 9.01E-5);
 	}
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other == null || !(other instanceof VoiceSplittingParameters)) {
+		if (!(other instanceof HmmVoiceSplittingModelParameters)) {
 			return false;
 		}
 		
-		VoiceSplittingParameters p = (VoiceSplittingParameters) other;
+		HmmVoiceSplittingModelParameters p = (HmmVoiceSplittingModelParameters) other;
 		
 		return BEAM_SIZE == p.BEAM_SIZE
 				&& NEW_VOICE_PROBABILITY == p.NEW_VOICE_PROBABILITY
 				&& PITCH_HISTORY_LENGTH == p.PITCH_HISTORY_LENGTH
 				&& GAP_STD_MICROS == p.GAP_STD_MICROS
 				&& PITCH_STD == p.PITCH_STD
-				&& MIN_GAP_SCORE == p.MIN_GAP_SCORE;
-				
+				&& MIN_GAP_SCORE == p.MIN_GAP_SCORE;		
+	}
+	
+	@Override
+	public int hashCode() {
+		return BEAM_SIZE +
+				Double.valueOf(NEW_VOICE_PROBABILITY).hashCode() +
+				PITCH_HISTORY_LENGTH +
+				Double.valueOf(GAP_STD_MICROS).hashCode() +
+				Double.valueOf(PITCH_STD).hashCode() + 
+				Double.valueOf(MIN_GAP_SCORE).hashCode();
 	}
 	
 	@Override
@@ -94,5 +103,39 @@ public class VoiceSplittingParameters {
 		sb.append(MIN_GAP_SCORE).append(')');
 		
 		return sb.toString();
+	}
+
+	@Override
+	public int compareTo(HmmVoiceSplittingModelParameters o) {
+		if (o == null) {
+			return -1;
+		}
+		
+		int result = Integer.compare(BEAM_SIZE, o.BEAM_SIZE);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Double.compare(MIN_GAP_SCORE, o.MIN_GAP_SCORE);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Double.compare(PITCH_STD, o.PITCH_STD);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Double.compare(GAP_STD_MICROS, o.GAP_STD_MICROS);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Double.compare(NEW_VOICE_PROBABILITY, o.NEW_VOICE_PROBABILITY);
+		if (result != 0) {
+			return result;
+		}
+		
+		return Integer.compare(PITCH_HISTORY_LENGTH, o.PITCH_HISTORY_LENGTH);
 	}
 }

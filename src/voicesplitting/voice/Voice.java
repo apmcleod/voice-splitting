@@ -7,7 +7,7 @@ import java.util.Map;
 
 import voicesplitting.utils.MathUtils;
 import voicesplitting.utils.MidiNote;
-import voicesplitting.voice.hmm.VoiceSplittingParameters;
+import voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters;
 
 /**
  * A <code>SingleNoteVoice</code> is a node in the LinkedList representing a
@@ -16,16 +16,14 @@ import voicesplitting.voice.hmm.VoiceSplittingParameters;
  * keeping the beginning of their note sequences identical. This allows us to have multiple
  * LinkedLists of notes without needing multiple full List objects. Rather, they all point
  * back to their common prefix LinkedLists.
- * <p>
- * This is the Voice class used in the paper submitted to ISMIR 2015.
  * 
  * @author Andrew McLeod - 6 April, 2015
  */
-public class SingleNoteVoice {
+public class Voice implements Comparable<Voice> {
 	/**
 	 * The Voice ending at second to last note in this voice.
 	 */
-	private final SingleNoteVoice previous;
+	private final Voice previous;
 	
 	/**
 	 * The most recent note of this voice.
@@ -38,7 +36,7 @@ public class SingleNoteVoice {
 	 * @param note {@link #mostRecentNote}
 	 * @param prev {@link #previous}
 	 */
-	public SingleNoteVoice(MidiNote note, SingleNoteVoice prev) {
+	public Voice(MidiNote note, Voice prev) {
 		previous = prev;
 		mostRecentNote = note;
 	}
@@ -48,7 +46,7 @@ public class SingleNoteVoice {
 	 * 
 	 * @param note {@link #mostRecentNote}
 	 */
-	public SingleNoteVoice(MidiNote note) {
+	public Voice(MidiNote note) {
 		this(note, null);
 	}
 	
@@ -58,7 +56,7 @@ public class SingleNoteVoice {
 	 * @param note The note we want to add.
 	 * @return The probability score for the given note.
 	 */
-	public double getProbability(MidiNote note, VoiceSplittingParameters params) {
+	public double getProbability(MidiNote note, HmmVoiceSplittingModelParameters params) {
 		double pitch = pitchScore(getWeightedLastPitch(params), note.getPitch(), params);
 		double gap = gapScore(note.getOnsetTime(), mostRecentNote.getOffsetTime(), params);
 		return pitch * gap;
@@ -67,13 +65,13 @@ public class SingleNoteVoice {
 	/**
 	 * Get the pitch closeness of the two given pitches. This value should be higher
 	 * the closer together the two pitch values are. The first input parameter is a double
-	 * because it is drawn from {@link #getWeightedLastPitch(VoiceSplittingParameters)}.
+	 * because it is drawn from {@link #getWeightedLastPitch(HmmVoiceSplittingModelParameters)}.
 	 * 
-	 * @param weightedPitch A weighted pitch, drawn from {@link #getWeightedLastPitch(VoiceSplittingParameters)}.
+	 * @param weightedPitch A weighted pitch, drawn from {@link #getWeightedLastPitch(HmmVoiceSplittingModelParameters)}.
 	 * @param pitch An exact pitch.
 	 * @return The pitch score of the given two pitches, a value between 0 and 1.
 	 */
-	private double pitchScore(double weightedPitch, int pitch, VoiceSplittingParameters params) {
+	private double pitchScore(double weightedPitch, int pitch, HmmVoiceSplittingModelParameters params) {
 		return MathUtils.gaussianWindow(weightedPitch, pitch, params.PITCH_STD);
 	}
 
@@ -85,7 +83,7 @@ public class SingleNoteVoice {
 	 * @param time2 Another time.
 	 * @return The gap score of the two given time values, a value between 0 and 1.
 	 */
-	private double gapScore(long time1, long time2, VoiceSplittingParameters params) {
+	private double gapScore(long time1, long time2, HmmVoiceSplittingModelParameters params) {
 		double timeDiff = Math.abs(time2 - time1);
 		double inside = Math.max(0, -timeDiff / params.GAP_STD_MICROS + 1);
 		double log = Math.log(inside) + 1;
@@ -100,7 +98,7 @@ public class SingleNoteVoice {
 	 * @param params The parameters we're using.
 	 * @return True if we can add a note of the given duration at the given time. False otherwise.
 	 */
-	public boolean canAddNoteAtTime(long time, long length, VoiceSplittingParameters params) {
+	public boolean canAddNoteAtTime(long time, long length, HmmVoiceSplittingModelParameters params) {
 		long overlap = mostRecentNote.getOffsetTime() - time;
 		
 		return overlap <= mostRecentNote.getDurationTime() / 2 && overlap < length;
@@ -112,13 +110,13 @@ public class SingleNoteVoice {
 	 * @param params The paramters we're using.
 	 * @return The weighted pitch of this voice.
 	 */
-	public double getWeightedLastPitch(VoiceSplittingParameters params) {
+	public double getWeightedLastPitch(HmmVoiceSplittingModelParameters params) {
 		double weight = 1;
 		double totalWeight = 0;
 		double sum = 0;
 		
 		// Most recent PITCH_HISTORY_LENGTH notes
-		SingleNoteVoice noteNode = this;
+		Voice noteNode = this;
 		for (int i = 0; i < params.PITCH_HISTORY_LENGTH && noteNode != null; i++, noteNode = noteNode.previous) {
 			sum += noteNode.mostRecentNote.getPitch() * weight;
 			
@@ -137,7 +135,7 @@ public class SingleNoteVoice {
 	public int getNumNotesCorrect() {
 		Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
 		
-		for (SingleNoteVoice noteNode = this; noteNode != null; noteNode = noteNode.previous) {
+		for (Voice noteNode = this; noteNode != null; noteNode = noteNode.previous) {
 			int channel = noteNode.mostRecentNote.getChannel();
 			if (!counts.containsKey(channel)) {
 				counts.put(channel, 0);
@@ -159,13 +157,13 @@ public class SingleNoteVoice {
 	 * that two consecutive notes belong to the same midi channel.
 	 * 
 	 * @param goldStandard The gold standard voices for this song.
-	 * @return The number of times that two consecutive notes belong to the same midi track.
+	 * @return The number of times that two consecutive notes belong to the same midi channel.
 	 */
 	public int getNumLinksCorrect(List<List<MidiNote>> goldStandard) {
 		int count = 0;
 		int index = -1;
 		
-		for (SingleNoteVoice node = this; node.previous != null; node = node.previous) {
+		for (Voice node = this; node.previous != null; node = node.previous) {
 			MidiNote guessedPrev = node.previous.mostRecentNote;
 			MidiNote note = node.mostRecentNote;
 			
@@ -185,7 +183,7 @@ public class SingleNoteVoice {
 					index = -1;
 				}
 			} else {
-				// Different channel - invalidate index
+				// Different track - invalidate index
 				index = -1;
 			}
 		}
@@ -233,12 +231,34 @@ public class SingleNoteVoice {
 	 * 
 	 * @return {@link #previous}
 	 */
-	public SingleNoteVoice getPrevious() {
+	public Voice getPrevious() {
 		return previous;
 	}
 	
 	@Override
 	public String toString() {
 		return getNotes().toString();
+	}
+
+	@Override
+	public int compareTo(Voice o) {
+		if (o == null) {
+			return -1;
+		}
+		
+		int result = mostRecentNote.compareTo(o.mostRecentNote);
+		if (result != 0) {
+			return result;
+		}
+		
+		if (previous == o.previous) {
+			return 0;
+		}
+		
+		if (previous == null) {
+			return 1;
+		}
+		
+		return previous.compareTo(o.previous);
 	}
 }

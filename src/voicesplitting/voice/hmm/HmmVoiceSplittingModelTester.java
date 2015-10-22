@@ -15,21 +15,22 @@ import java.util.concurrent.Future;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
+import voicesplitting.generic.MidiModel;
 import voicesplitting.parsing.EventParser;
+import voicesplitting.parsing.NoteListGenerator;
 import voicesplitting.time.TimeTracker;
-import voicesplitting.trackers.NoteListGenerator;
 import voicesplitting.utils.MidiNote;
-import voicesplitting.voice.SingleNoteVoice;
-import voicesplitting.voice.VoiceSplitter;
+import voicesplitting.voice.Voice;
+import voicesplitting.voice.VoiceSplittingModel;
 
 /**
- * A <code>VoiceSplittingTester</code> tests the {@link VoiceSplitter} class {@link HmmVoiceSplitter}.
+ * A <code>HmmVoiceSplittingModelTester</code> tests the {@link VoiceSplittingModel} class.
  * <p>
  * This was the class used to train for the ISMIR 2015 paper.
  * 
  * @author Andrew McLeod - 10 April, 2015
  */
-public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn> {
+public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingModelTesterReturn> {
 	
 	/**
 	 * The number of processes to use for tuning.
@@ -49,17 +50,17 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	/**
 	 * The songs we are tuning and testing.
 	 */
-	public static List<List<MidiNote>> songs;
+	private static List<NoteListGenerator> songs;
 	
 	/**
 	 * The gold standard Voices.
 	 */
-	public static List<List<List<MidiNote>>> goldStandard;
+	private static List<List<List<MidiNote>>> goldStandard;
 	
 	/**
 	 * A List of the Files we're working on.
 	 */
-	public static List<File> files;
+	private static List<File> files;
 
 	/**
 	 * @param args
@@ -194,40 +195,19 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 		
 		songs = getSongs(files);
 		
-		VoiceSplittingParameters params = new VoiceSplittingParameters(BS, NVP, PHL, GSM, PS, MGS);
+		HmmVoiceSplittingModelParameters params = new HmmVoiceSplittingModelParameters(BS, NVP, PHL, GSM, PS, MGS);
 		
 		if (tune) {
-			VoiceSplittingParameters best = tune(steps);
+			HmmVoiceSplittingModelParameters best = tune(steps);
 			if (best != null) {
 				params = best;
 			}
 		}
 
 		if (run) {
-			VoiceSplittingTesterReturn result = runTest(params);
+			HmmVoiceSplittingModelTesterReturn result = runTest(params);
 			System.out.println(result);
 		}
-	}
-
-	/**
-	 * Recursively find all of the files under the given one
-	 * 
-	 * @param file The File under which to search.
-	 * @return A list of all of the files under the given one, recursively grabbed from subdirectories.
-	 */
-	private static List<File> getAllFilesRecursive(File file) {
-		List<File> files = new ArrayList<File>();
-		
-		if (file.isDirectory()) {
-			for (File subFile : file.listFiles()) {
-				files.addAll(getAllFilesRecursive(subFile));
-			}
-			
-		} else {
-			files.add(file);
-		}
-		
-		return files;
 	}
 
 	/**
@@ -241,7 +221,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	 * @throws InterruptedException 
 	 * @throws ExecutionException 
 	 */
-	private static VoiceSplittingParameters tune(int steps) throws InvalidMidiDataException, IOException, MidiUnavailableException, InterruptedException, ExecutionException {
+	private static HmmVoiceSplittingModelParameters tune(int steps) throws InvalidMidiDataException, IOException, MidiUnavailableException, InterruptedException, ExecutionException {
 		// min/max values
 		double bsMin = 10, bsMax = 11;
 		double nvpMin = 1E-9, nvpMax = 1.0E-7;
@@ -260,7 +240,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 		double mgsStep = (mgsMax - mgsMin) / steps;
 		
 		// Enumerate testing parameters
-		List<VoiceSplittingParameters> testList = new ArrayList<VoiceSplittingParameters>();
+		List<HmmVoiceSplittingModelParameters> testList = new ArrayList<HmmVoiceSplittingModelParameters>();
 		
 		for (double NVP = nvpMin; nvpMax - NVP > EPSILON; NVP += nvpStep) {
 			for (double PHL = phlMin; phlMax - PHL > EPSILON; PHL += phlStep) {
@@ -268,7 +248,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 					for (double PS = psMin; psMax - PS > EPSILON; PS += psStep) {
 						for (double MGS = mgsMin; mgsMax - MGS > EPSILON; MGS += mgsStep) {
 							for (double BS = bsMin; bsMax - BS > EPSILON; BS += bsStep) {
-								testList.add(new VoiceSplittingParameters((int) Math.round(BS), NVP, (int)Math.round(PHL), GSM, PS, MGS));
+								testList.add(new HmmVoiceSplittingModelParameters((int) Math.round(BS), NVP, (int)Math.round(PHL), GSM, PS, MGS));
 							}
 						}
 					}
@@ -279,22 +259,22 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 		double paramsPerProc = ((double) testList.size()) / ((double) NUM_PROCS);
 		
 		// Create callables
-		List<Callable<VoiceSplittingTesterReturn>> callables = new ArrayList<Callable<VoiceSplittingTesterReturn>>(NUM_PROCS);
+		List<Callable<HmmVoiceSplittingModelTesterReturn>> callables = new ArrayList<Callable<HmmVoiceSplittingModelTesterReturn>>(NUM_PROCS);
 	    for (int i = 0; i < NUM_PROCS; i++) {
-	    	callables.add(new VoiceSplittingTester(
+	    	callables.add(new HmmVoiceSplittingModelTester(
 	    			testList.subList((int) Math.round(i * paramsPerProc), (int) Math.round((i + 1) * paramsPerProc))
 	    	));
 	    }
 	    
-	    VoiceSplittingTesterReturn best = new VoiceSplittingTesterReturn();
+	    HmmVoiceSplittingModelTesterReturn best = new HmmVoiceSplittingModelTesterReturn();
 
 	    // Execute the callables
 	    ExecutorService executor = Executors.newFixedThreadPool(NUM_PROCS);
-	    List<Future<VoiceSplittingTesterReturn>> results = executor.invokeAll(callables);
+	    List<Future<HmmVoiceSplittingModelTesterReturn>> results = executor.invokeAll(callables);
 	    
 	    // Grab the results and save the best
-	    for (Future<VoiceSplittingTesterReturn> result : results) {
-	    	VoiceSplittingTesterReturn testerReturn = result.get();
+	    for (Future<HmmVoiceSplittingModelTesterReturn> result : results) {
+	    	HmmVoiceSplittingModelTesterReturn testerReturn = result.get();
 	    	if (testerReturn.getF1() > best.getF1()) {
 	    		best = testerReturn;
 	    	}
@@ -316,7 +296,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	 * @throws IOException
 	 * @throws MidiUnavailableException
 	 */
-	private static VoiceSplittingTesterReturn runTest(VoiceSplittingParameters params) throws InvalidMidiDataException, IOException, MidiUnavailableException {
+	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params) throws InvalidMidiDataException, IOException, MidiUnavailableException {
 		int noteCount = 0;
 		int correct = 0;
 		double voiceAccSum = 0;
@@ -326,37 +306,33 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 		double precision = 0;
 		int songIndex = -1;
 
-		for (List<MidiNote> song : songs) {
+		for (NoteListGenerator nlg : songs) {
 			List<List<MidiNote>> gS = goldStandard.get(++songIndex);
 			if (VERBOSE) {
 				System.out.println(files.get(songIndex).getAbsolutePath());
 			}
 			// The size of this Set will be the true number of voices in this song.
 			Set<Integer> voiceCount = new HashSet<Integer>();
-			for (MidiNote note : song) {
+			for (MidiNote note : nlg.getNoteList()) {
 				voiceCount.add(note.getChannel());
 			}
 			
 			voiceAccSongSum = 0;
-			VoiceSplitter vs = new HmmVoiceSplitter(song, params);
+			VoiceSplittingModel vs = new HmmVoiceSplittingModel(params);
+			
+			performInference(vs, nlg);
 
-			List<SingleNoteVoice> voices;
-			try {
-				voices = vs.getVoices();
-			} catch (InterruptedException e) {
-				System.err.println(e.getLocalizedMessage());
-				return null;
-			}
+			List<Voice> voices = vs.getHypotheses().first().getVoices();
 			
 			int songTruePositives = 0;
 			int songFalsePositives = 0;
 			int songNoteCount = 0;
 
-			for (SingleNoteVoice voice : voices) {
+			for (Voice voice : voices) {
 				int voiceNumNotes = voice.getNumNotes();
 				int voiceCorrect = voice.getNumNotesCorrect();
 				
-				int voiceTruePositives = ((SingleNoteVoice) voice).getNumLinksCorrect(gS);
+				int voiceTruePositives = voice.getNumLinksCorrect(gS);
 				int voiceFalsePositives = voiceNumNotes - voiceTruePositives - 1;
 				
 				songNoteCount += voiceNumNotes;
@@ -392,20 +368,20 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 		recall /= songs.size();
 		precision /= songs.size();
 		
-		return new VoiceSplittingTesterReturn(params, noteC, voiceC, precision, recall);
+		return new HmmVoiceSplittingModelTesterReturn(params, noteC, voiceC, precision, recall);
 	}
 	
 	/**
 	 * Get the songs in the given midi Files.
 	 * 
 	 * @param files A List of Files (should be midi files).
-	 * @return A List of the same songs.
+	 * @return A List of the NoteListGenerators for each song.
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 * @throws MidiUnavailableException
 	 */
-	private static List<List<MidiNote>> getSongs(List<File> files) throws InvalidMidiDataException, IOException, MidiUnavailableException {
-		List<List<MidiNote>> songs = new ArrayList<List<MidiNote>>(files.size());
+	private static List<NoteListGenerator> getSongs(List<File> files) throws InvalidMidiDataException, IOException, MidiUnavailableException {
+		List<NoteListGenerator> songs = new ArrayList<NoteListGenerator>(files.size());
 		goldStandard = new ArrayList<List<List<MidiNote>>>(files.size());
 		
 		for (File midi : files) {
@@ -419,11 +395,47 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 				System.err.println(e.getLocalizedMessage());
 			}
 
-			songs.add(nlg.getNoteList());
+			songs.add(nlg);
 			goldStandard.add(ep.getGoldStandardVoices());
 		}
 		
 		return songs;
+	}
+	
+	/**
+	 * Perform inference on the given model.
+	 * 
+	 * @param model The model on which we want to perform inference.
+	 * @param nlg The NoteListGenerator which will give us the incoming note lists.
+	 */
+	public static void performInference(MidiModel model, NoteListGenerator nlg) {
+		for (List<MidiNote> incoming : nlg.getIncomingLists()) {
+			model.handleIncoming(incoming);
+		}
+	}
+	
+	/**
+	 * Get and return a List of every file beneath the given one.
+	 * 
+	 * @param file The head File.
+	 * @return A List of every File under the given head.
+	 */
+	public static List<File> getAllFilesRecursive(File file) {
+		List<File> files = new ArrayList<File>();
+		
+		if (file.isFile()) {
+			files.add(file);
+			
+		} else if (file.isDirectory()) {
+			File[] fileList = file.listFiles();
+			if (fileList != null) {
+				for (File subFile : fileList) {
+					files.addAll(getAllFilesRecursive(subFile));
+				}
+			}
+		}
+		
+		return files;
 	}
 	
 	/**
@@ -457,14 +469,14 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	/**
 	 * A List of the parameters which we need to test with this Tester.
 	 */
-	private List<VoiceSplittingParameters> parametersList;
+	private List<HmmVoiceSplittingModelParameters> parametersList;
 	
 	/**
 	 * Create a new Tester which should test on the given parameters.
 	 * 
 	 * @param params {@link #parametersList}
 	 */
-	public VoiceSplittingTester(List<VoiceSplittingParameters> params) {
+	public HmmVoiceSplittingModelTester(List<HmmVoiceSplittingModelParameters> params) {
 		parametersList = params;
 	}
 
@@ -475,11 +487,11 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	 * List of parameters.
 	 */
 	@Override
-	public VoiceSplittingTesterReturn call() throws Exception {
-		VoiceSplittingTesterReturn best = new VoiceSplittingTesterReturn();
+	public HmmVoiceSplittingModelTesterReturn call() throws Exception {
+		HmmVoiceSplittingModelTesterReturn best = new HmmVoiceSplittingModelTesterReturn();
 		
-		for (VoiceSplittingParameters params : parametersList) {
-			VoiceSplittingTesterReturn result = runTest(params);
+		for (HmmVoiceSplittingModelParameters params : parametersList) {
+			HmmVoiceSplittingModelTesterReturn result = runTest(params);
 			
 			System.out.println(result);
 			

@@ -94,7 +94,7 @@ public class VoiceSplittingGUIMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent arg0) {
 				VoiceSplittingGUI gui = (VoiceSplittingGUI) SwingUtilities.getWindowAncestor(VoiceSplittingGUIMenuBar.this);
 				
-				VoiceSplittingParametersDialog dialog = new VoiceSplittingParametersDialog(gui);
+				HmmVoiceSplittingModelParametersDialog dialog = new HmmVoiceSplittingModelParametersDialog(gui);
 				dialog.setVisible(true);
 			}
 		});

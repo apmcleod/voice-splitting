@@ -8,7 +8,7 @@ import javax.sound.midi.InvalidMidiDataException;
 
 import voicesplitting.parsing.EventParser;
 import voicesplitting.time.TimeTracker;
-import voicesplitting.trackers.NoteListGenerator;
+import voicesplitting.parsing.NoteListGenerator;
 import voicesplitting.utils.MidiNote;
 
 /**
@@ -32,7 +32,7 @@ public class VoiceSplittingRunner {
 	/**
 	 * A List of the notes of the currently loaded file.
 	 */
-	private List<MidiNote> notes;
+	private NoteListGenerator nlg;
 	
 	/**
 	 * A List of the gold standard voices for this song.
@@ -50,13 +50,11 @@ public class VoiceSplittingRunner {
 	public VoiceSplittingRunner(File midiFile) throws InvalidMidiDataException, IOException, InterruptedException {
 		this.midiFile = midiFile;
 		tt = new TimeTracker();
-		NoteListGenerator nlg = new NoteListGenerator(tt);
+		nlg = new NoteListGenerator(tt);
 		EventParser ep = new EventParser(midiFile, nlg, tt);
 		
 		ep.run();
 		goldStandardVoices = ep.getGoldStandardVoices();
-		
-		notes = nlg.getNoteList();
 	}
 	
 	/**
@@ -78,12 +76,12 @@ public class VoiceSplittingRunner {
 	}
 	
 	/**
-	 * Get the List of the notes from the current loaded MIDI file.
+	 * Get the NoteListGeneratr from the current loaded MIDI file.
 	 * 
-	 * @return {@link #notes}, or null if no MIDI file is loaded yet.
+	 * @return {@link #nlg}, or null if no MIDI file is loaded yet.
 	 */
-	public List<MidiNote> getNotes() {
-		return notes;
+	public NoteListGenerator getNlg() {
+		return nlg;
 	}
 	
 	/**

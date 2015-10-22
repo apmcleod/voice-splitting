@@ -2,26 +2,26 @@ package voicesplitting.voice.hmm;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import voicesplitting.utils.MathUtils;
 import voicesplitting.utils.MidiNote;
-import voicesplitting.voice.SingleNoteVoice;
+import voicesplitting.voice.Voice;
+import voicesplitting.voice.VoiceSplittingModelState;
 
 /**
- * A <code>State</code> is used by the {@link HmmVoiceSplitter} and contains a List of the
- * {@link SingleNoteVoice}s which are currently present in the HMM as well as its
+ * A <code>State</code> is used by the {@link HmmVoiceSplittingModel} and contains a List of the
+ * {@link Voice}s which are currently present in the HMM as well as its
  * cumulative probability so far.
  * 
  * @author Andrew McLeod - 7 April, 2015
  */
-public class State implements Comparable<State> {
+public class HmmVoiceSplittingModelState extends VoiceSplittingModelState implements Comparable<HmmVoiceSplittingModelState> {
 
 	/**
 	 * A List of the Voices present in this State.
 	 */
-	private List<SingleNoteVoice> voices;
+	private List<Voice> voices;
 	
 	/**
 	 * The log probability of appearing in this State.
@@ -31,14 +31,14 @@ public class State implements Comparable<State> {
 	/**
 	 * The parameters we are using.
 	 */
-	private VoiceSplittingParameters params;
+	private HmmVoiceSplittingModelParameters params;
 	
 	/**
 	 * Create a new default State with logProb = 0 (ie. prob = 1)
 	 * 
 	 * @param params {@link #params}
 	 */
-	public State(VoiceSplittingParameters params) {
+	public HmmVoiceSplittingModelState(HmmVoiceSplittingModelParameters params) {
 		this(0, params);
 	}
 	
@@ -48,8 +48,8 @@ public class State implements Comparable<State> {
 	 * @param logProb {@link #logProb}
 	 * @param params {@link #params} 
 	 */
-	public State(double logProb, VoiceSplittingParameters params) {
-		voices = new ArrayList<SingleNoteVoice>();
+	public HmmVoiceSplittingModelState(double logProb, HmmVoiceSplittingModelParameters params) {
+		voices = new ArrayList<Voice>();
 		this.logProb = logProb;
 		this.params = params;
 	}
@@ -61,26 +61,21 @@ public class State implements Comparable<State> {
 	 * @param voices {@link #voices}
 	 * @param params {@link #params}
 	 */
-	private State(double logProb, List<SingleNoteVoice> voices, VoiceSplittingParameters params) {
+	private HmmVoiceSplittingModelState(double logProb, List<Voice> voices, HmmVoiceSplittingModelParameters params) {
 		this.voices = voices;
 		this.logProb = logProb;
 		this.params = params;
 	}
 	
-	/**
-	 * Get all of the candidate states based on transitions from this State given the incoming notes.
-	 * 
-	 * @param incoming A List of incoming notes.
-	 * @return A List of possible States which we could transition into.
-	 */
-	public SortedSet<State> getAllCandidateNewStates(List<MidiNote> incoming) {
+	@Override
+	public TreeSet<HmmVoiceSplittingModelState> handleIncoming(List<MidiNote> incoming) {
 		// We need a deep copy of voices in case there are more transitions to perform
 		// on this State
 		return getAllCandidateNewStatesRecursive(getOpenVoiceIndices(incoming, voices), incoming, voices, logProb, 0);
 	}
 
 	/**
-	 * This method does the work for {@link #getAllCandidateNewStates(List)} recursively.
+	 * This method does the work for {@link #handleIncoming(List)} recursively.
 	 * 
 	 * @param openVoiceIndices The open voice indices for each note, gotten from {@link #getOpenVoiceIndices(List, List)}
 	 * initially.
@@ -93,17 +88,17 @@ public class State implements Comparable<State> {
 	 * 
 	 * @return A List of all States which could be transitioned into given the parameters.
 	 */
-	private SortedSet<State> getAllCandidateNewStatesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming,
-			List<SingleNoteVoice> newVoices, double logProbSum, int noteIndex) {
+	private TreeSet<HmmVoiceSplittingModelState> getAllCandidateNewStatesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming,
+			List<Voice> newVoices, double logProbSum, int noteIndex) {
 		if (noteIndex == incoming.size()) {
 			// Base case - no notes left to transition. Return a State based on the given Voices and log prob.
-			SortedSet<State> newStates = new TreeSet<State>();
-			newStates.add(new State(logProbSum, new ArrayList<SingleNoteVoice>(newVoices), params));
+			TreeSet<HmmVoiceSplittingModelState> newStates = new TreeSet<HmmVoiceSplittingModelState>();
+			newStates.add(new HmmVoiceSplittingModelState(logProbSum, new ArrayList<Voice>(newVoices), params));
 			return newStates;
 		}
 		
 		// Setup
-		TreeSet<State> newStates = new TreeSet<State>();
+		TreeSet<HmmVoiceSplittingModelState> newStates = new TreeSet<HmmVoiceSplittingModelState>();
 		
 		
 		// Calculate transition probabilities for starting new voices
@@ -147,8 +142,8 @@ public class State implements Comparable<State> {
 	 * @param maxValue The maximum value of any number in newVoiceProbs.
 	 * @param newStates The States List where we will add the newly created States.
 	 */
-	private void addNewVoicesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming, List<SingleNoteVoice> newVoices,
-			double logProbSum, int noteIndex, double[] newVoiceProbs, double maxValue, TreeSet<State> newStates) {
+	private void addNewVoicesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming, List<Voice> newVoices,
+			double logProbSum, int noteIndex, double[] newVoiceProbs, double maxValue, TreeSet<HmmVoiceSplittingModelState> newStates) {
 		
 		for (int newVoiceIndex = 0; newVoiceIndex < newVoiceProbs.length; newVoiceIndex++) {
 			if (newVoiceProbs[newVoiceIndex] == maxValue) {
@@ -203,7 +198,7 @@ public class State implements Comparable<State> {
 	 * @param newStates The States List where we will add the newly created States.
 	 */
 	private void addToExistingVoicesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming,
-			List<SingleNoteVoice> newVoices, double logProbSum, int noteIndex, double[] existingVoiceProbs, TreeSet<State> newStates) {
+			List<Voice> newVoices, double logProbSum, int noteIndex, double[] existingVoiceProbs, TreeSet<HmmVoiceSplittingModelState> newStates) {
 		
 		for (int openVoiceIndex = 0; openVoiceIndex < existingVoiceProbs.length; openVoiceIndex++) {
 			// Try the transition
@@ -213,7 +208,7 @@ public class State implements Comparable<State> {
 			// Fix openVoiceIndices
 			boolean[] removed = new boolean[openVoiceIndices.size()];
 			for (int note = noteIndex + 1; note < openVoiceIndices.size(); note++) {
-				removed[note] = openVoiceIndices.get(note).remove(new Integer(voiceIndex));
+				removed[note] = openVoiceIndices.get(note).remove(Integer.valueOf(voiceIndex));
 			}
 			
 			// (Pseudo-)recursive call
@@ -248,7 +243,7 @@ public class State implements Comparable<State> {
 	 * will return the index of the (j+1)th (since it is 0-indexed) open Voice in newVoices for the ith note
 	 * from incoming.
 	 */
-	private List<List<Integer>> getOpenVoiceIndices(List<MidiNote> incoming, List<SingleNoteVoice> voices) {
+	private List<List<Integer>> getOpenVoiceIndices(List<MidiNote> incoming, List<Voice> voices) {
 		long onsetTime = incoming.get(0).getOnsetTime();
 		List<List<Integer>> openIndices = new ArrayList<List<Integer>>(incoming.size());
 		
@@ -271,7 +266,7 @@ public class State implements Comparable<State> {
 	 * @param transition The transition we want to reverse.
 	 * @param newVoices The Voices List where we want to reverse the transition.
 	 */
-	private void reverseTransition(int transition, List<SingleNoteVoice> newVoices) {
+	private void reverseTransition(int transition, List<Voice> newVoices) {
 		// For new Voices, we need to add the Voice, and then update the transition value to
 		// point to that new Voice so the lower code works.
 		if (transition < 0) {
@@ -291,15 +286,15 @@ public class State implements Comparable<State> {
 	 * Any non-negative value means to add the note into the Voice at that index in newVoices.
 	 * @param newVoices A List of the Voices available to have notes added to them.
 	 */
-	private void doTransition(MidiNote note, int transition, List<SingleNoteVoice> newVoices) {
+	private void doTransition(MidiNote note, int transition, List<Voice> newVoices) {
 		// For new Voices, we need to add the Voice, and then update the transition value to
 		// point to that new Voice so the lower code works.
 		if (transition < 0) {
 			transition = -transition - 1;
-			newVoices.add(transition, new SingleNoteVoice(note));
+			newVoices.add(transition, new Voice(note));
 			
 		} else {
-			newVoices.set(transition, new SingleNoteVoice(note, newVoices.get(transition)));
+			newVoices.set(transition, new Voice(note, newVoices.get(transition)));
 		}
 	}
 
@@ -313,9 +308,9 @@ public class State implements Comparable<State> {
 	 * @param newVoices A List of the Voices available to have notes added to them.
 	 * @return The probability of the given transition.
 	 */
-	private double getTransitionProb(MidiNote note, int transition, List<SingleNoteVoice> newVoices) {
+	private double getTransitionProb(MidiNote note, int transition, List<Voice> newVoices) {
 		double logProb;
-		SingleNoteVoice prev, next;
+		Voice prev, next;
 		
 		// For new Voices, we need to add the Voice, and then update the transition value to
 		// point to that new Voice so the lower code works.
@@ -347,41 +342,44 @@ public class State implements Comparable<State> {
 		return logProb;
 	}
 	
-	/**
-	 * Get a list of the Voices we've found in this State.
-	 * 
-	 * @return {@link #voices}
-	 */
-	public List<SingleNoteVoice> getVoices() {
+	@Override
+	public List<Voice> getVoices() {
 		return voices;
 	}
 	
-	/**
-	 * Get the log probability of appearing in this State.
-	 * 
-	 * @return {@link #logProb}
-	 */
-	public double getLogProb() {
-		return logProb;
-	}
-
-	/**
-	 * The default State Comparator. States are naturally ordered by decreasing {@link #logProb}.
-	 * 
-	 * @param o The other State we are comparing against. If null, we return -1.
-	 * @return The int representing whether the ordering of this State with the given one.
-	 */
 	@Override
-	public int compareTo(State o) {
-		if (o == null) {
-			return -1;
-		}
-		
-		return ((Double) o.getLogProb()).compareTo(logProb);
+	public double getScore() {
+		return logProb;
 	}
 	
 	@Override
 	public String toString() {
 		return voices.toString() + " " + logProb;
+	}
+
+	@Override
+	public int compareTo(HmmVoiceSplittingModelState o) {
+		if (o == null) {
+			return -1;
+		}
+		
+		int result = Double.compare(o.getScore(), getScore());
+		if (result != 0) {
+			return result;
+		}
+
+		result = voices.size() - o.voices.size();
+		if (result != 0) {
+			return result;
+		}
+		
+		for (int i = 0; i < voices.size(); i++) {
+			result = voices.get(i).compareTo(o.voices.get(i));
+			if (result != 0) {
+				return result;
+			}
+		}
+		
+		return params.compareTo(o.params);
 	}
 }

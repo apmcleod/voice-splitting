@@ -1,16 +1,16 @@
 package voicesplitting.voice.hmm;
 
 /**
- * The return object for a {@link VoiceSplittingTester} thread. This is used because we need
+ * The return object for a {@link HmmVoiceSplittingModelTester} thread. This is used because we need
  * both the parameters and their accuracy, yet a Callble can only return 1 value.
  * 
  * @author Andrew McLeod - 14 April, 2015
  */
-public class VoiceSplittingTesterReturn {
+public class HmmVoiceSplittingModelTesterReturn {
 	/**
 	 * The parameters we used.
 	 */
-	private VoiceSplittingParameters parameters;
+	private HmmVoiceSplittingModelParameters parameters;
 	
 	/**
 	 * The note consistency we achieved.
@@ -35,7 +35,7 @@ public class VoiceSplittingTesterReturn {
 	/**
 	 * Create a new empty Return result.
 	 */
-	public VoiceSplittingTesterReturn() {
+	public HmmVoiceSplittingModelTesterReturn() {
 		this(null, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
 	}
 	
@@ -48,7 +48,7 @@ public class VoiceSplittingTesterReturn {
 	 * @param prec {@link #precision}
 	 * @param rec {@link #recall}
 	 */
-	public VoiceSplittingTesterReturn(VoiceSplittingParameters params, double noteC, double voiceC, double prec, double rec) {
+	public HmmVoiceSplittingModelTesterReturn(HmmVoiceSplittingModelParameters params, double noteC, double voiceC, double prec, double rec) {
 		parameters = params;
 		noteConsistency = noteC;
 		voiceConsistency = voiceC;
@@ -61,7 +61,7 @@ public class VoiceSplittingTesterReturn {
 	 * 
 	 * @return {@link #parameters}
 	 */
-	public VoiceSplittingParameters getParameters() {
+	public HmmVoiceSplittingModelParameters getParameters() {
 		return parameters;
 	}
 	
@@ -116,7 +116,7 @@ public class VoiceSplittingTesterReturn {
 	 * 
 	 * @param params {@link #parameters}
 	 */
-	public void setParams(VoiceSplittingParameters params) {
+	public void setParams(HmmVoiceSplittingModelParameters params) {
 		parameters = params;
 	}
 

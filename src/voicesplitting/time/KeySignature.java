@@ -92,7 +92,12 @@ public class KeySignature {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (!(other instanceof KeySignature)) {
+			return false;
+		}
+		
 		KeySignature ks = (KeySignature) other;
+		
 		return getPositiveOffsetFromC() == ks.getPositiveOffsetFromC() && isMajor() == ks.isMajor();
 	}
 }

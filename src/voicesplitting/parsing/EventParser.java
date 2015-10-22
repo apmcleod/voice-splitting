@@ -24,8 +24,7 @@ import voicesplitting.utils.MidiNote;
 /**
  * An <code>EventParser</code> handles the interfacing between this program and MIDI files.
  * It can read in MIDI events from a file with {@link #run()}, play the audio
- * of the currently loaded data with {@link #playAudio()}, and write the
- * MIDI data out to a file with {@link #write(File)}.
+ * of the currently loaded data with {@link #playAudio()}.
  * <p>
  * One EventParser is required per song you wish to parse.
  * 
@@ -81,7 +80,7 @@ public class EventParser {
 	 * Creates a new Midi EventParser
 	 * 
 	 * @param midiFile The MIDI file we will parse.
-	 * @param noteEventParser The NoteTracker to pass events to when we run this parser.
+	 * @param noteEventParser The NoteEventParser to pass events to when we run this parser.
 	 * @throws IOException If an I/O error occurred when reading the given file. 
 	 * @throws InvalidMidiDataException If the given file was is not in a valid MIDI format.
 	 */
@@ -92,7 +91,7 @@ public class EventParser {
     	this.noteEventParser = noteEventParser;
     	this.timeTracker = timeTracker;
     	
-    	TimeTracker.PPQ = song.getResolution();
+    	timeTracker.setPPQ(song.getResolution());
     	
     	goldStandard = new ArrayList<List<MidiNote>>(song.getTracks().length);
     }
@@ -103,6 +102,7 @@ public class EventParser {
      * @throws InterruptedException If this is running on a GUI and gets cancelled.
      */
     public void run() throws InvalidMidiDataException, InterruptedException {
+    	long lastTick = 0;
         for (Track track : song.getTracks()) {
         	// multi-track support
         	
@@ -118,6 +118,8 @@ public class EventParser {
                 MidiMessage message = event.getMessage();
                 ShortMessage sm;
                 int status = message.getStatus();
+                
+                lastTick = Math.max(lastTick, event.getTick());
                 
                 if (status == MetaMessage.META) {
                 	MetaMessage mm = (MetaMessage) message;
@@ -180,6 +182,8 @@ public class EventParser {
         for (List<MidiNote> gS : goldStandard) {
         	Collections.sort(gS);
         }
+        
+        timeTracker.setLastTick(lastTick);
     }
     
     /**
@@ -194,16 +198,6 @@ public class EventParser {
     	player.open();
     	player.setSequence(song);
     	player.start();
-    }
-    
-    /**
-     * Write the currently loaded MIDI data out to a file. 
-     * 
-     * @param outFile The File to write out to.
-     * @throws IOException
-     */
-    public void write(File outFile) throws IOException {
-    	MidiSystem.write(song, 1, outFile);
     }
     
     /**

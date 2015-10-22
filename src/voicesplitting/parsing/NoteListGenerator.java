@@ -1,4 +1,4 @@
-package voicesplitting.trackers;
+package voicesplitting.parsing;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,9 +8,7 @@ import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
 
-import voicesplitting.parsing.NoteEventParser;
 import voicesplitting.time.TimeTracker;
-import voicesplitting.utils.Beat;
 import voicesplitting.utils.MidiNote;
 
 /**
@@ -33,7 +31,7 @@ public class NoteListGenerator implements NoteEventParser {
 	/**
 	 * The TimeTracker for this NoteListGenerator.
 	 */
-	private TimeTracker timeTracker;
+	protected TimeTracker timeTracker;
 	
 	/**
 	 * Creates a new NoteListGenerator with the given TimeTracker.
@@ -50,9 +48,8 @@ public class NoteListGenerator implements NoteEventParser {
 	@Override
 	public MidiNote noteOn(int key, int velocity, long tick, int channel) {
 		long time = timeTracker.getTimeAtTick(tick);
-		Beat beat = timeTracker.getBeatAtTick(tick);
 		
-		MidiNote note = new MidiNote(key, velocity, time, tick, beat, channel, -1);
+		MidiNote note = new MidiNote(key, velocity, time, tick, channel, -1);
 		
 		activeNotes.add(note);
 		
@@ -69,7 +66,7 @@ public class NoteListGenerator implements NoteEventParser {
 			
 			if (note.getPitch() == key && note.getChannel() == channel) {
 				iterator.remove();
-				note.close(time, tick, timeTracker.getBeatAtTick(tick));
+				note.close(time, tick);
 				completedNotes.add(note);
 				return;
 			}
@@ -95,5 +92,34 @@ public class NoteListGenerator implements NoteEventParser {
 		Collections.sort(completedNotes);
 		
 		return completedNotes;
+	}
+	
+	/**
+	 * Returns a List of the incoming note lists. This is exactly the sequence of note lists
+	 * which should be fed into the {@link voicesplitting.generic.MidiModel#handleIncoming(List)}
+	 * method.
+	 * 
+	 * @return A List of incoming note lists, where each individual list contains all of the notes
+	 * which onset at a particular time, and the lists themselves are sorted by onset time.
+	 */
+	public List<List<MidiNote>> getIncomingLists() {
+		List<List<MidiNote>> incomingLists = new ArrayList<List<MidiNote>>();
+		
+		List<MidiNote> noteList = getNoteList();
+		
+		int i = 0;
+		while (i < noteList.size()) {
+			List<MidiNote> incoming = new ArrayList<MidiNote>();
+			long onsetTime = noteList.get(i).getOnsetTime();
+			
+			// Add the note and increment while we're still on the proper onset time.
+			do {
+				incoming.add(noteList.get(i++));
+			} while (i < noteList.size() && noteList.get(i).getOnsetTime() == onsetTime);
+			
+			incomingLists.add(incoming);
+		}
+		
+		return incomingLists;
 	}
 }
