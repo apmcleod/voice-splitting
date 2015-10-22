@@ -75,6 +75,10 @@ public class Tempo {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (!(other instanceof Tempo)) {
+			return false;
+		}
+		
 		Tempo t = (Tempo) other;
 		
 		return getMicroSecondsPerQuarter() == t.getMicroSecondsPerQuarter();

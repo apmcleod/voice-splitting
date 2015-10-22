@@ -29,8 +29,11 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import voicesplitting.voice.hmm.HmmVoiceSplitter;
-import voicesplitting.voice.hmm.VoiceSplittingParameters;
+import voicesplitting.utils.MidiNote;
+import voicesplitting.voice.Voice;
+import voicesplitting.voice.hmm.HmmVoiceSplittingModel;
+import voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters;
+import voicesplitting.voice.hmm.HmmVoiceSplittingModelTester;
 
 /**
  * The <code>BeatTrackingGUI</code> is the class which creates the gui for the beat tracking project.
@@ -96,7 +99,7 @@ public class VoiceSplittingGUI extends JFrame {
 	/**
 	 * The params to use for Voice Splitting.
 	 */
-	private VoiceSplittingParameters params = new VoiceSplittingParameters();
+	private HmmVoiceSplittingModelParameters params = new HmmVoiceSplittingModelParameters();
 	
 	/**
 	 * The currently running SwingWorker.
@@ -362,7 +365,7 @@ public class VoiceSplittingGUI extends JFrame {
 	 * @throws InvalidMidiDataException If the file contained some invlaid MIDI data.
 	 */
 	public void loadNewFile() {
-		JFileChooser chooser = new JFileChooser();
+JFileChooser chooser = new JFileChooser();
 		
 	    FileNameExtensionFilter filter = new FileNameExtensionFilter("MIDI Files", "mid", "midi");
 	    chooser.setFileFilter(filter);
@@ -405,14 +408,16 @@ public class VoiceSplittingGUI extends JFrame {
 					}
 					
 					for (JButton button : soloButtons) {
-						button.setBorder(BorderFactory.createRaisedBevelBorder());
+						if (button.getText().equals("")) {
+							button.setBorder(BorderFactory.createRaisedBevelBorder());
+						}
 					}
 					
 					fileNameLabel.setText(runner.getFile().getName());
 					fileNameLabel.setForeground(Color.WHITE);
 					separateButton.setEnabled(false);
 					
-					NoteDisplayerWorker ndw = new NoteDisplayerWorker(noteScroll, VoiceSplittingGUI.this, runner.getNotes());
+					NoteDisplayerWorker ndw = new NoteDisplayerWorker(noteScroll, VoiceSplittingGUI.this, runner.getNlg().getNoteList());
 					executeSwingWorker(ndw);
 				}
     		});
@@ -432,14 +437,18 @@ public class VoiceSplittingGUI extends JFrame {
 
 				@Override
 				protected Double doInBackground() {
-					HmmVoiceSplitter vs = new HmmVoiceSplitter(runner.getNotes(), params);
+					HmmVoiceSplittingModel vs = new HmmVoiceSplittingModel(params);
+					HmmVoiceSplittingModelTester.performInference(vs, runner.getNlg());
 					
-					try {
-						vs.getVoices();
-						return vs.getF1(runner.getGoldStandardVoices());
-					} catch (InterruptedException e) {
-						return null;
+					int i = 0;
+					for (Voice voice : vs.getHypotheses().first().getVoices()) {
+						for (MidiNote note : voice.getNotes()) {
+							note.setGuessedVoice(i);
+						}
+						i++;
 					}
+					
+					return vs.getF1(runner.getGoldStandardVoices());
 				}
 				
 				@Override
@@ -520,7 +529,7 @@ public class VoiceSplittingGUI extends JFrame {
 	 * 
 	 * @return {@link #params}
 	 */
-	public VoiceSplittingParameters getParams() {
+	public HmmVoiceSplittingModelParameters getParams() {
 		return params;
 	}
 	
@@ -529,7 +538,7 @@ public class VoiceSplittingGUI extends JFrame {
 	 * 
 	 * @param params {@link #params}
 	 */
-	public void setParams(VoiceSplittingParameters params) {
+	public void setParams(HmmVoiceSplittingModelParameters params) {
 		this.params = params;
 	}
 	

@@ -55,7 +55,7 @@ public class MidiWriter {
 		this.outFile = outFile;
 		timeTracker = tt;
 		
-		sequence = new Sequence(Sequence.PPQ, (int) TimeTracker.PPQ);
+		sequence = new Sequence(Sequence.PPQ, (int) timeTracker.getPPQ());
 		sequence.createTrack();
 		
 		writeTimeTracker();

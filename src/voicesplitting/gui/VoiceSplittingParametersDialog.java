@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import voicesplitting.voice.hmm.VoiceSplittingParameters;
+import voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters;
 
 /**
  * A <code>VoiceSplittingParametersDialog</code> object creates and displays the gui dialog
@@ -49,7 +49,7 @@ public class VoiceSplittingParametersDialog extends JDialog {
 	/**
 	 * The parameters that were set initially.
 	 */
-	private VoiceSplittingParameters params;
+	private HmmVoiceSplittingModelParameters params;
 	
 	/**
 	 * The gui frame of this instance.
@@ -107,7 +107,7 @@ public class VoiceSplittingParametersDialog extends JDialog {
 		defaults.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				VoiceSplittingParameters def = new VoiceSplittingParameters();
+				HmmVoiceSplittingModelParameters def = new HmmVoiceSplittingModelParameters();
 				textFieldMap.get(BEAM_SIZE).setText("" + def.BEAM_SIZE);
 				textFieldMap.get(NEW_VOICE_PROBABILITY).setText("" + def.NEW_VOICE_PROBABILITY);
 				textFieldMap.get(PITCH_HISTORY_LENGTH).setText("" + def.PITCH_HISTORY_LENGTH);
@@ -131,7 +131,7 @@ public class VoiceSplittingParametersDialog extends JDialog {
 		ok.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				VoiceSplittingParameters newParams = VoiceSplittingParametersDialog.this.loadDisplayedParameters();
+				HmmVoiceSplittingModelParameters newParams = VoiceSplittingParametersDialog.this.loadDisplayedParameters();
 				if (newParams != null) {
 					if (!params.equals(newParams)) {
 						gui.setParams(newParams);
@@ -150,9 +150,9 @@ public class VoiceSplittingParametersDialog extends JDialog {
 	 * 
 	 * @return The parameters, loaded from the text areas.
 	 */
-	protected VoiceSplittingParameters loadDisplayedParameters() {
+	protected HmmVoiceSplittingModelParameters loadDisplayedParameters() {
 		try {
-			return new VoiceSplittingParameters(
+			return new HmmVoiceSplittingModelParameters(
 					Integer.parseInt(textFieldMap.get(BEAM_SIZE).getText()),
 					Double.parseDouble(textFieldMap.get(NEW_VOICE_PROBABILITY).getText()),
 					Integer.parseInt(textFieldMap.get(PITCH_HISTORY_LENGTH).getText()),

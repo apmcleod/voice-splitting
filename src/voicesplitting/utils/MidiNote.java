@@ -49,16 +49,6 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * The key number of this note. For piano, it should be on the range 21 to 108 inclusive.
 	 */
 	private int pitch;
-	
-	/**
-	 * The Beat of the onset of this note.
-	 */
-	private Beat onsetBeat;
-	
-	/**
-	 * The Beat of the offset of this note.
-	 */
-	private Beat offsetBeat;
 
 	/**
 	 * The index of the guessed voice of this note.
@@ -75,12 +65,11 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * @param channel {@link #channel}
 	 * @param guessedVoice {@link #guessedVoice}
 	 */
-	public MidiNote(int key, int velocity, long onsetTime, long onsetTick, Beat beat, int channel, int guessedVoice) {
+	public MidiNote(int key, int velocity, long onsetTime, long onsetTick, int channel, int guessedVoice) {
 		this.pitch = key;
 		this.velocity = velocity;
 		this.onsetTime = onsetTime;
 		this.onsetTick = onsetTick;
-		this.onsetBeat = beat;
 		this.channel = channel;
 		offsetTime = 0;
 		offsetTick = 0;
@@ -92,12 +81,10 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * 
 	 * @param onsetTime {@link #onsetTime}
 	 * @param onsetTick {@link #onsetTick}
-	 * @param beat {@link #onsetBeat}
 	 */
-	public void setOnset(long onsetTime, long onsetTick, Beat beat) {
+	public void setOnset(long onsetTime, long onsetTick) {
 		this.onsetTime = onsetTime;
 		this.onsetTick = onsetTick;
-		this.onsetBeat = beat;
 	}
 	
 	/**
@@ -105,12 +92,10 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * 
 	 * @param offsetTime {@link #offsetTime}
 	 * @param offsetTick {@link #offsetTick}
-	 * @param beat {@link #offsetBeat}
 	 */
-	public void setOffset(long offsetTime, long offsetTick, Beat beat) {
+	public void setOffset(long offsetTime, long offsetTick) {
 		this.offsetTime = offsetTime;
 		this.offsetTick = offsetTick;
-		this.offsetBeat = beat;
 	}
 	
 	/**
@@ -128,23 +113,8 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * @param offsetTime {@link #offsetTime}
 	 * @param offsetTick {@link #offsetTick}
 	 */
-	public void close(long offsetTime, long offsetTick, Beat beat) {
-		this.offsetTime = offsetTime;
-		this.offsetTick = offsetTick;
-		this.offsetBeat = beat;
-	}
-
-	/**
-	 * Get the length of this note in beats.
-	 * 
-	 * @return The length of this note in beats.
-	 */
-	public int getNoteDurationBeats() {
-		if (isActive()) {
-			return 0;
-		}
-		
-		return onsetBeat.getNumBeatsUntil(offsetBeat);
+	public void close(long offsetTime, long offsetTick) {
+		setOffset(offsetTime, offsetTick);
 	}
 
 	/**
@@ -222,24 +192,6 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 	
 	/**
-	 * Get the onset Beat for this note.
-	 * 
-	 * @return {@link #onsetBeat}
-	 */
-	public Beat getOnsetBeat() {
-		return onsetBeat;
-	}
-	
-	/**
-	 * Get the offset Beat for this note.
-	 * 
-	 * @return {@link #offsetBeat}
-	 */
-	public Beat getOffsetBeat() {
-		return offsetBeat;
-	}
-	
-	/**
 	 * Get the velocity of this note.
 	 * 
 	 * @return {@link #velocity}
@@ -258,7 +210,7 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 	
 	/**
-	 * Set the track number of this note to a new value.
+	 * Set the channel of this note to a new value.
 	 * 
 	 * @param channel {@link #channel}
 	 */
@@ -283,28 +235,10 @@ public class MidiNote implements Comparable<MidiNote> {
 	public int getGuessedVoice() {
 		return guessedVoice;
 	}
-	
-	/**
-	 * Get a deep copy of this MidiNote.
-	 * 
-	 * @return a deep copy of this note.
-	 */
-	public MidiNote deepCopy() {
-		Beat newOnsetBeat = onsetBeat.shallowCopy();
-		Beat newOffsetBeat = offsetBeat.shallowCopy();
-		
-		MidiNote copy = new MidiNote(pitch, velocity, onsetTime, onsetTick, newOnsetBeat, channel, guessedVoice);
-		copy.setOffset(offsetTime, offsetTick, newOffsetBeat);
-		
-		newOnsetBeat.setNote(copy);
-		newOffsetBeat.setNote(copy);
-		
-		return copy;
-	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("(K:%d  V:%d  [%d-%d] %s %d)", pitch, velocity, onsetTick, offsetTick, onsetBeat.toString(), channel);
+		return String.format("(K:%d  V:%d  [%d-%d] %d)", pitch, velocity, onsetTick, offsetTick, channel);
 	}
 
 	@Override
@@ -312,6 +246,32 @@ public class MidiNote implements Comparable<MidiNote> {
 		if (o == null) {
 			return 1;
 		}
-		return ((Long) getOnsetTick()).compareTo(o.getOnsetTick());
+		
+		int result = Long.compare(onsetTick, o.onsetTick);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Long.compare(offsetTick, o.offsetTick);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Integer.compare(pitch, o.pitch);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Integer.compare(velocity, o.velocity);
+		if (result != 0) {
+			return result;
+		}
+		
+		result = Integer.compare(channel,  o.channel);
+		if (result != 0) {
+			return result;
+		}
+		
+		return Integer.compare(guessedVoice, o.guessedVoice);
 	}
 }

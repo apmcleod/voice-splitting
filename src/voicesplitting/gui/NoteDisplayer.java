@@ -21,7 +21,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 
-import voicesplitting.utils.Beat;
 import voicesplitting.utils.MidiNote;
 
 /**
@@ -535,7 +534,7 @@ public class NoteDisplayer extends JPanel {
 			remove(noteGui);
 			
 			MidiNote note = noteGui.getNote();
-			gui.getRunner().getNotes().remove(note);
+			gui.getRunner().getNlg().getNoteList().remove(note);
 			gui.getRunner().getGoldStandardVoices().get(note.getChannel()).remove(note);
 		}
 		
@@ -656,10 +655,9 @@ public class NoteDisplayer extends JPanel {
 		
 		long offsetTime = note1.getOffsetTime();
 		long offsetTick = note1.getOffsetTick();
-		Beat offsetBeat = note1.getOffsetBeat();
 		
-		note1.setOffset(note2.getOffsetTime(), note2.getOffsetTick(), note2.getOffsetBeat());
-		note2.setOffset(offsetTime, offsetTick, offsetBeat);
+		note1.setOffset(note2.getOffsetTime(), note2.getOffsetTick());
+		note2.setOffset(offsetTime, offsetTick);
 		
 		gui1.setScale(getHorizontalScale(), getVerticalScale());
 		gui2.setScale(getHorizontalScale(), getVerticalScale());
