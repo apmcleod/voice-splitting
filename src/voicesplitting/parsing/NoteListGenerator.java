@@ -13,7 +13,7 @@ import voicesplitting.utils.MidiNote;
 
 /**
  * A <code>NoteListGenerator</code> parses Note On and Note Off events and generates a List of
- * the {@link beattracking.utils.MidiNote}s present in any given song. 
+ * the {@link voicesplitting.utils.MidiNote}s present in any given song. 
  * 
  * @author Andrew McLeod - 11 Feb, 2015
  */
@@ -96,7 +96,7 @@ public class NoteListGenerator implements NoteEventParser {
 	
 	/**
 	 * Returns a List of the incoming note lists. This is exactly the sequence of note lists
-	 * which should be fed into the {@link beattracking.generic.MidiModel#handleIncoming(List)}
+	 * which should be fed into the {@link voicesplitting.generic.MidiModel#handleIncoming(List)}
 	 * method.
 	 * 
 	 * @return A List of incoming note lists, where each individual list contains all of the notes

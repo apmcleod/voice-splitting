@@ -2,8 +2,8 @@ package voicesplitting.time;
 
 /**
  * A <code>TimeTrackerNode</code> represents the state of a musical score at a given time. That is,
- * it represents a <{@link beattracking.time.TimeSignature},
- * {@link beattracking.time.Tempo}, {@link beattracking.time.KeySignature}>
+ * it represents a <{@link voicesplitting.time.TimeSignature},
+ * {@link voicesplitting.time.Tempo}, {@link voicesplitting.time.KeySignature}>
  * triple, and contains information about the times at which that triple is contiguously valid.
  * 
  * @author Andrew McLeod - 11 Feb, 2015
