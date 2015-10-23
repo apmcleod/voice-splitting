@@ -64,7 +64,7 @@ public class NoteListGenerator implements NoteEventParser {
 		while (iterator.hasNext()) {
 			MidiNote note = iterator.next();
 			
-			if (note.getPitch() == key && note.getChannel() == channel) {
+			if (note.getPitch() == key && note.getCorrectVoice() == channel) {
 				iterator.remove();
 				note.close(time, tick);
 				completedNotes.add(note);
