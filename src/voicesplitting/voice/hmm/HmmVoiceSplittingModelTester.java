@@ -48,6 +48,11 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	private static boolean VERBOSE = false;
 	
 	/**
+	 * True if we want to use the input data's channel as gold standard voices. False to use track instead.
+	 */
+	private static boolean USE_CHANNEL = true;
+	
+	/**
 	 * The songs we are tuning and testing.
 	 */
 	private static List<NoteListGenerator> songs;
@@ -105,6 +110,11 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				}
 				
 				switch (args[i].charAt(1)) {
+					case 'T':
+						// Use track
+						USE_CHANNEL = false;
+						break;
+						
 					case 'v':
 						// Verbose
 						VERBOSE = true;
@@ -314,7 +324,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			// The size of this Set will be the true number of voices in this song.
 			Set<Integer> voiceCount = new HashSet<Integer>();
 			for (MidiNote note : nlg.getNoteList()) {
-				voiceCount.add(note.getChannel());
+				voiceCount.add(note.getCorrectVoice());
 			}
 			
 			voiceAccSongSum = 0;
@@ -388,7 +398,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			TimeTracker tt = new TimeTracker();
 			NoteListGenerator nlg = new NoteListGenerator(tt);
 		
-			EventParser ep = new EventParser(midi, nlg, tt);
+			EventParser ep = new EventParser(midi, nlg, tt, USE_CHANNEL);
 			try {
 				ep.run();
 			} catch (InterruptedException e) {
@@ -461,7 +471,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		sb.append("-t [STEPS] = Tune, and optionally set the number of steps to make within each parameter range");
 				sb.append(" to an Integer value (default = 5)\n");
 		sb.append("-r = Run test (if used with -t, we will use the tuned parameters instead of any given)\n");
-		sb.append("-v = Verbose (print out each song and each individual voice when running)");
+		sb.append("-v = Verbose (print out each song and each individual voice when running)\n");
+		sb.append("-T = Use tracks as correct voice (instead of channels)");
 		
 		System.err.println(sb);
 	}

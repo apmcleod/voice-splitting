@@ -136,7 +136,7 @@ public class Voice implements Comparable<Voice> {
 		Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
 		
 		for (Voice noteNode = this; noteNode != null; noteNode = noteNode.previous) {
-			int channel = noteNode.mostRecentNote.getChannel();
+			int channel = noteNode.mostRecentNote.getCorrectVoice();
 			if (!counts.containsKey(channel)) {
 				counts.put(channel, 0);
 			}
@@ -167,8 +167,8 @@ public class Voice implements Comparable<Voice> {
 			MidiNote guessedPrev = node.previous.mostRecentNote;
 			MidiNote note = node.mostRecentNote;
 			
-			if (note.getChannel() == guessedPrev.getChannel()) {
-				int channel = note.getChannel();
+			if (note.getCorrectVoice() == guessedPrev.getCorrectVoice()) {
+				int channel = note.getCorrectVoice();
 				if (index == -1) {
 					// No valid index - refind
 					index = goldStandard.get(channel).indexOf(note);

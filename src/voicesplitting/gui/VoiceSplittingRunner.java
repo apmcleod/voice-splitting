@@ -43,15 +43,17 @@ public class VoiceSplittingRunner {
 	 * Create a new BeatTrackingRunner on the given File.
 	 * 
 	 * @param midiFile {@link #midiFile}
+	 * @param useChannel True if we want to use the input data's channel as gold standard voices.
+	 * False to use track instead.
 	 * @throws IOException If some I/O error occurred when reading the file.
 	 * @throws InvalidMidiDataException If the file contained some invlaid MIDI data.
 	 * @throws InterruptedException If this is running on a GUI and gets cancelled.
 	 */
-	public VoiceSplittingRunner(File midiFile) throws InvalidMidiDataException, IOException, InterruptedException {
+	public VoiceSplittingRunner(File midiFile, boolean useChannel) throws InvalidMidiDataException, IOException, InterruptedException {
 		this.midiFile = midiFile;
 		tt = new TimeTracker();
 		nlg = new NoteListGenerator(tt);
-		EventParser ep = new EventParser(midiFile, nlg, tt);
+		EventParser ep = new EventParser(midiFile, nlg, tt, useChannel);
 		
 		ep.run();
 		goldStandardVoices = ep.getGoldStandardVoices();

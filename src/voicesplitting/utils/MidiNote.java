@@ -16,9 +16,9 @@ package voicesplitting.utils;
 public class MidiNote implements Comparable<MidiNote> {
 	
 	/**
-	 * The midi channel which this note came from.
+	 * The gold standard voice which this note came from.
 	 */
-	private int channel;
+	private int correctVoice;
 	
 	/**
 	 * The onset time of this note, measured in microseconds.
@@ -62,15 +62,15 @@ public class MidiNote implements Comparable<MidiNote> {
 	 * @param velocity {@link #velocity}
 	 * @param onsetTime {@link #onsetTime}
 	 * @param onsetTick {@link #onsetTick}
-	 * @param channel {@link #channel}
+	 * @param correctVoice {@link #correctVoice}
 	 * @param guessedVoice {@link #guessedVoice}
 	 */
-	public MidiNote(int key, int velocity, long onsetTime, long onsetTick, int channel, int guessedVoice) {
+	public MidiNote(int key, int velocity, long onsetTime, long onsetTick, int correctVoice, int guessedVoice) {
 		this.pitch = key;
 		this.velocity = velocity;
 		this.onsetTime = onsetTime;
 		this.onsetTick = onsetTick;
-		this.channel = channel;
+		this.correctVoice = correctVoice;
 		offsetTime = 0;
 		offsetTick = 0;
 		this.guessedVoice = guessedVoice;
@@ -201,21 +201,21 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 
 	/**
-	 * Get the channel of this note.
+	 * Get the gold standard voice of this note.
 	 * 
-	 * @return {@link #channel}
+	 * @return {@link #correctVoice}
 	 */
-	public int getChannel() {
-		return channel;
+	public int getCorrectVoice() {
+		return correctVoice;
 	}
 	
 	/**
-	 * Set the channel of this note to a new value.
+	 * Set the gold standard voice of this note to a new value.
 	 * 
-	 * @param channel {@link #channel}
+	 * @param correctVoice {@link #correctVoice}
 	 */
-	public void setChannel(int channel) {
-		this.channel = channel;
+	public void setCorrectVoice(int correctVoice) {
+		this.correctVoice = correctVoice;
 	}
 	
 	/**
@@ -238,7 +238,7 @@ public class MidiNote implements Comparable<MidiNote> {
 
 	@Override
 	public String toString() {
-		return String.format("(K:%d  V:%d  [%d-%d] %d)", pitch, velocity, onsetTick, offsetTick, channel);
+		return String.format("(K:%d  V:%d  [%d-%d] %d)", pitch, velocity, onsetTick, offsetTick, correctVoice);
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class MidiNote implements Comparable<MidiNote> {
 			return result;
 		}
 		
-		result = Integer.compare(channel,  o.channel);
+		result = Integer.compare(correctVoice,  o.correctVoice);
 		if (result != 0) {
 			return result;
 		}

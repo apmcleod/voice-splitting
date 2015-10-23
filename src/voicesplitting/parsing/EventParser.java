@@ -75,16 +75,23 @@ public class EventParser {
 	 * The gold standard voices from this song.
 	 */
 	private List<List<MidiNote>> goldStandard;
+	
+	/**
+	 * True if we want to use the input data's channel as gold standard voices. False to use track instead.
+	 */
+	private boolean useChannel;
     
 	/**
 	 * Creates a new Midi EventParser
 	 * 
 	 * @param midiFile The MIDI file we will parse.
 	 * @param noteEventParser The NoteEventParser to pass events to when we run this parser.
+	 * @param useChannel True if we want to use the input data's channel as gold standard voices.
+	 * False to use track instead.
 	 * @throws IOException If an I/O error occurred when reading the given file. 
 	 * @throws InvalidMidiDataException If the given file was is not in a valid MIDI format.
 	 */
-    public EventParser(File midiFile, NoteEventParser noteEventParser, TimeTracker timeTracker)
+    public EventParser(File midiFile, NoteEventParser noteEventParser, TimeTracker timeTracker, boolean useChannel)
     		throws InvalidMidiDataException, IOException{
     	song = MidiSystem.getSequence(midiFile);
     	
@@ -93,6 +100,7 @@ public class EventParser {
     	
     	timeTracker.setPPQ(song.getResolution());
     	
+    	this.useChannel = useChannel;
     	goldStandard = new ArrayList<List<MidiNote>>(song.getTracks().length);
     }
 	
@@ -103,7 +111,8 @@ public class EventParser {
      */
     public void run() throws InvalidMidiDataException, InterruptedException {
     	long lastTick = 0;
-        for (Track track : song.getTracks()) {
+        for (int trackNum = 0; trackNum < song.getTracks().length; trackNum++) {
+        	Track track = song.getTracks()[trackNum];
         	// multi-track support
         	
             for (int i = 0; i < track.size(); i++) {
@@ -146,6 +155,9 @@ public class EventParser {
                 	
                 } else {
                 	int channel = status & CHANNEL_MASK;
+                	
+                	int correctVoice = useChannel ? channel : trackNum;
+                	
 	                switch (status & MESSAGE_MASK) {
 		                	
 	                	case ShortMessage.NOTE_ON:
@@ -155,11 +167,11 @@ public class EventParser {
 	                        velocity = sm.getData2();
 	                        
 	                        if (velocity != 0) {
-	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), channel);
-	                        	while (goldStandard.size() <= channel) {
+	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), correctVoice);
+	                        	while (goldStandard.size() <= correctVoice) {
 	                        		goldStandard.add(new ArrayList<MidiNote>());
 	                        	}
-	                        	goldStandard.get(channel).add(note);
+	                        	goldStandard.get(correctVoice).add(note);
 	                        	break;
 	                        }
 	                        
@@ -169,7 +181,7 @@ public class EventParser {
 	                		
 	                		key = sm.getData1();
 	                		
-	                        noteEventParser.noteOff(key, event.getTick(), channel);
+	                        noteEventParser.noteOff(key, event.getTick(), correctVoice);
 	                        break;
 	                        
 	                    default:
