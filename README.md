@@ -65,3 +65,12 @@ stderr. In general, there are 2 main types of errors:
 If the results you are getting seem very low, try using the `-T` flag if running from the command line,
 or unchecking the `Use Channel` box if using the GUI. Some MIDI files divide notes into voices
 by track while others do it by channel. MIDI files created by this software does both.
+
+## Contact
+Please let me know if you are interested in using my work. If you run into any problems installing it,
+using it, extending it, or you'd like to see me add any additional features, please let me know either by
+email or by submitting an issue on github. Any and all questions are always welcome.
+
+Thanks, and enjoy!
+Andrew McLeod
+A.McLeod-5@sms.ed.ac.uk
