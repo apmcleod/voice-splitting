@@ -3,7 +3,7 @@ The goal of this project is to have a Java program which is able to split MIDI p
 data into monophonic voices.
 
 ## Usage
-You are free to use this software as is allowed by the [MIT License](https://www.github.com/apmcleod/VoiceSplitting/License).
+You are free to use this software as is allowed by the MIT License.
 I only ask that you please cite it as my work where appropriate.
 
 ## Documentation
