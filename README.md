@@ -4,7 +4,9 @@ data into monophonic voices.
 
 ## Usage
 You are free to use this software as is allowed by the MIT License.
-I only ask that you please cite it as my work where appropriate.
+I only ask that you please cite it as my work where appropriate, including
+the paper on my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html)
+(currently under review).
 
 ## Documentation
 This document contains some basic code examples and a general overview of how to use
@@ -71,6 +73,9 @@ Please let me know if you are interested in using my work. If you run into any p
 using it, extending it, or you'd like to see me add any additional features, please let me know either by
 email or by submitting an issue on github. Any and all questions are always welcome.
 
-Thanks, and enjoy!
-Andrew McLeod
+There is a paper which is currently under review on my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html)
+with further documentaion. Please cite this or my code if you use either.
+
+Thanks, and enjoy!  
+Andrew McLeod  
 A.McLeod-5@sms.ed.ac.uk
