@@ -218,6 +218,10 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			HmmVoiceSplittingModelTesterReturn result = runTest(params);
 			System.out.println(result);
 		}
+		
+		if (!tune && !run) {
+			argumentError("Neither -t nor -r selected");
+		}
 	}
 
 	/**
@@ -472,7 +476,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				sb.append(" to an Integer value (default = 5)\n");
 		sb.append("-r = Run test (if used with -t, we will use the tuned parameters instead of any given)\n");
 		sb.append("-v = Verbose (print out each song and each individual voice when running)\n");
-		sb.append("-T = Use tracks as correct voice (instead of channels)");
+		sb.append("-T = Use tracks as correct voice (instead of channels)\n\n");
+		sb.append("Note that either -t or -r is required for the program to run.");
 		
 		System.err.println(sb);
 	}
