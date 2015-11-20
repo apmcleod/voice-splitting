@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 
+import voicesplitting.gui.GUIConstants;
 import voicesplitting.utils.MidiNote;
 
 /**
@@ -143,94 +144,7 @@ public class MidiNoteGUI extends JLabel {
 	 * @return The correct color.
 	 */
 	public static Color getColor(int track) {
-		Color color;
-		
-		switch (track) {
-			case 0:
-				// red
-				color = new Color(255, 0, 0);
-				break;
-				
-			case 1:
-				// green
-				color = new Color(0, 255, 0);
-				break;
-				
-			case 2:
-				// blue
-				color = new Color(0, 0, 255);
-				break;
-				
-			case 3:
-				// red-green
-				color = new Color(255, 255, 0);
-				break;
-				
-			case 4:
-				// red-blue
-				color = new Color(255, 0, 255);
-				break;
-				
-			case 5:
-				// green-blue
-				color = new Color(0, 255, 255);
-				break;
-				
-			case 6:
-				// light red-ish
-				color = new Color(255, 133, 133);
-				break;
-				
-			case 7:
-				// light green-ish
-				color = new Color(133, 255, 133);
-				break;
-				
-			case 8:
-				// light blue-ish
-				color = new Color(133, 133, 255);
-				break;
-				
-			case 9:
-				// dark red
-				color = new Color(133, 0, 0);
-				break;
-				
-			case 10:
-				// dark green
-				color = new Color(0, 133, 0);
-				break;
-				
-			case 11:
-				// dark blue
-				color = new Color(0, 0, 133);
-				break;
-				
-			case 12:
-				// dark red-green
-				color = new Color(133, 133, 0);
-				break;
-				
-			case 13:
-				// dark red-blue
-				color = new Color(133, 0, 133);
-				break;
-				
-			case 14:
-				// dark green-blue
-				color = new Color(0, 133, 133);
-				break;
-				
-			case 15:
-				// white
-				color = new Color(255, 255, 255);
-				break;
-				
-			default:
-				color = Color.BLACK;
-		}
-		
-		return color;
+		return track < GUIConstants.COLORS.length ? GUIConstants.COLORS[track] : Color.BLACK;
 	}
 	
 	/**

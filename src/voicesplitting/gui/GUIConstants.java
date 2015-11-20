@@ -1,5 +1,7 @@
 package voicesplitting.gui;
 
+import java.awt.Color;
+
 /**
  * The <code>GUIConstants</code> class holds constant values to be used for the GUI
  * layout.
@@ -47,4 +49,26 @@ public class GUIConstants {
 	 * String for the unseparate voices button.
 	 */
 	public static final String UNSEPARATE = "Undo Voice Separation";
+	
+	/**
+	 * The Colors to use for coloring the different voices of MidiNotes of each track.
+	 */
+	public static final Color[] COLORS = new Color[] {
+			Color.decode("#00FF00"),
+			Color.decode("#0000FF"),
+			Color.decode("#FF0000"),
+			Color.decode("#01FFFE"),
+			Color.decode("#FFA6FE"),
+			Color.decode("#FFDB66"),
+			Color.decode("#006401"),
+			Color.decode("#010067"),
+			Color.decode("#95003A"),
+			Color.decode("#007DB5"),
+			Color.decode("#FF00F6"),
+			Color.decode("#FFEEE8"),
+			Color.decode("#774D00"),
+			Color.decode("#90FB92"),
+			Color.decode("#0076FF"),
+			Color.decode("#D5FF00")
+	};
 }
