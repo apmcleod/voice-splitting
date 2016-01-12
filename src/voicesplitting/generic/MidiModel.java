@@ -40,7 +40,7 @@ public abstract class MidiModel {
 	 * <p>
 	 * The most highly scoring state can be retrieved by using <code>getHypotheses().first()</code>.
 	 * <p>
-	 * NOTE: This is dependent on proper implimentation of the {@link MidiModeState}'s
+	 * NOTE: This is dependent on proper implimentation of the {@link MidiModelState}'s
 	 * <code>compareTo</code> method.
 	 * 
 	 * @return A TreeSet of the current hypothesis states of this MidiModel, in their natural order.
