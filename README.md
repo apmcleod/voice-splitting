@@ -5,7 +5,7 @@ data into monophonic voices.
 ## Usage
 You are free to use this software as is allowed by the MIT License.
 I only ask that you please cite it as my work where appropriate, including
-the paper on my [website](http://homepages.inf.ed.ac.uk/s1331854/software.php#VoiceSeparation)
+the paper on my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html#VoiceSeparation)
 which has been accepted to be published in the Journal of New Music Research.
 
 ## Documentation
@@ -74,7 +74,7 @@ using it, extending it, or you'd like to see me add any additional features, ple
 email or by submitting an issue on github. Any and all questions are always welcome.
 
 There is a paper which has been accepted to be published in the Journal of New Music Research available on
-my [website](http://homepages.inf.ed.ac.uk/s1331854/software.php#VoiceSeparation) with further documentation.
+my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html#VoiceSeparation) with further documentation.
 Please cite this if you use my code or the paper.
 
 Thanks, and enjoy!  
