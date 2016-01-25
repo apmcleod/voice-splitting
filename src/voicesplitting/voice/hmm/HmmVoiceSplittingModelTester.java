@@ -87,7 +87,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		double PS = HmmVoiceSplittingModelParameters.PITCH_STD_DEFAULT;
 		double MGS = HmmVoiceSplittingModelParameters.MIN_GAP_SCORE_DEFAULT;
 		
-		int steps = 10;
+		int steps = 5;
 		
 		files = new ArrayList<File>();
 		
@@ -311,8 +311,6 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * @throws MidiUnavailableException
 	 */
 	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params) throws InvalidMidiDataException, IOException, MidiUnavailableException {
-		int noteCount = 0;
-		int correct = 0;
 		double voiceAccSum = 0;
 		double voiceAccSongSum = 0;
 		
@@ -350,7 +348,6 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				int voiceFalsePositives = voiceNumNotes - voiceTruePositives - 1;
 				
 				songNoteCount += voiceNumNotes;
-				correct += voiceCorrect;
 				voiceAccSongSum += ((double) voiceCorrect) / voiceNumNotes;
 				
 				songTruePositives += voiceTruePositives;
@@ -363,7 +360,6 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			
 			int songFalseNegatives = songNoteCount - voiceCount.size() - songTruePositives;
 			
-			noteCount += songNoteCount;
 			voiceAccSum += voiceAccSongSum / voices.size();
 			
 			precision += ((double) songTruePositives) / (songTruePositives + songFalsePositives);
@@ -375,14 +371,13 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				System.out.println("F1=" + (2 * ((double) songTruePositives) / (2 * songTruePositives + songFalseNegatives + songFalsePositives)));
 			}
 		}
-
-		double noteC = ((double) correct) / noteCount;
+		
 		double voiceC = voiceAccSum / songs.size();
 		
 		recall /= songs.size();
 		precision /= songs.size();
 		
-		return new HmmVoiceSplittingModelTesterReturn(params, noteC, voiceC, precision, recall);
+		return new HmmVoiceSplittingModelTesterReturn(params, voiceC, precision, recall);
 	}
 	
 	/**

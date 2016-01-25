@@ -13,11 +13,6 @@ public class HmmVoiceSplittingModelTesterReturn {
 	private HmmVoiceSplittingModelParameters parameters;
 	
 	/**
-	 * The note consistency we achieved.
-	 */
-	private double noteConsistency;
-	
-	/**
 	 * The voice consistency we achieved.
 	 */
 	private double voiceConsistency;
@@ -36,21 +31,19 @@ public class HmmVoiceSplittingModelTesterReturn {
 	 * Create a new empty Return result.
 	 */
 	public HmmVoiceSplittingModelTesterReturn() {
-		this(null, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+		this(null, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
 	}
 	
 	/**
 	 * Create a new return result.
 	 * 
 	 * @param params {@link #parameters}
-	 * @param noteC {@link #noteConsistency}
 	 * @param voiceC {@link #voiceConsistency}
 	 * @param prec {@link #precision}
 	 * @param rec {@link #recall}
 	 */
-	public HmmVoiceSplittingModelTesterReturn(HmmVoiceSplittingModelParameters params, double noteC, double voiceC, double prec, double rec) {
+	public HmmVoiceSplittingModelTesterReturn(HmmVoiceSplittingModelParameters params, double voiceC, double prec, double rec) {
 		parameters = params;
-		noteConsistency = noteC;
 		voiceConsistency = voiceC;
 		precision = prec;
 		recall = rec;
@@ -63,15 +56,6 @@ public class HmmVoiceSplittingModelTesterReturn {
 	 */
 	public HmmVoiceSplittingModelParameters getParameters() {
 		return parameters;
-	}
-	
-	/**
-	 * Get the note consistency from this run.
-	 * 
-	 * @return {@link #noteConsistency}
-	 */
-	public double getNoteConsistency() {
-		return noteConsistency;
 	}
 	
 	/**
@@ -119,16 +103,6 @@ public class HmmVoiceSplittingModelTesterReturn {
 	public void setParams(HmmVoiceSplittingModelParameters params) {
 		parameters = params;
 	}
-
-	/**
-	 * Set the note consistency of this run. Use this instead of creating a new object every time to
-	 * save garbage collect time.
-	 * 
-	 * @param noteC {@link #noteConsistency}
-	 */
-	public void setNoteConsistency(double noteC) {
-		noteConsistency = noteC;
-	}
 	
 	/**
 	 * Set the voice consistency of this run. Use this instead of creating a new object every time to
@@ -162,6 +136,6 @@ public class HmmVoiceSplittingModelTesterReturn {
 	
 	@Override
 	public String toString() {
-		return parameters + " = V=" + voiceConsistency + " N=" + noteConsistency + " P=" + precision + " R=" + recall + " F1=" + getF1();
+		return parameters + " = V=" + voiceConsistency + " P=" + precision + " R=" + recall + " F1=" + getF1();
 	}
 }

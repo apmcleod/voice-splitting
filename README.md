@@ -25,7 +25,7 @@ Once the class files are installed in the bin directory, the project can be run,
 To run the GUI version of the project, use the command `java -cp bin voicesplitting.gui.VoiceSplittingGUI`.
 
 ### Command Line
-#### Basics
+#### Arguments
 To run the project from the command line, use the command
 
 `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester ARGS Files`
@@ -36,8 +36,10 @@ found are not in MIDI format, an exception will be thrown.
 
 ARGS:
  * Running arguments:
-   * `-t [STEPS]` = Tune, and optionally set the number of steps to make within each parameter
-     range to an Integer value (default = 5).
+   * `-t [STEPS]` = Tune to maximize F1-Measure, and optionally set the number of steps to make
+     within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
+     method rather than your own script because it runs the tests in parallel as much as possible to speed up
+     training.
    * `-r` = Run a test (if used with -t, we will use the tuned parameters instead of any given).
    * `-v` = Verbose (print out each song and each individual voice when running).
    * `-T` = Use tracks as correct voice (instead of channels). See [Troubleshooting](#troubleshooting)
@@ -51,16 +53,43 @@ values (those with which we tested the computer generated WTC fugues in the pape
    * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE (defualt = 224000).
    * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE (defualt = 4).
    * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE (defualt = 7E-5).
+   
+#### Output
+The standard (non-verbose) `-r` output has the following format:
+
+(`b`,`n`,`h`,`g`,`p`,`m`) = V=`Average Voice Consistency` P=`Precision` R=`Recall` F1=`F1-Measure`
+
+Here, the letters within the parentheses on the left represent the settings of the parameters as listed
+in the [Arguments](#arguments) section above. The values on the right correspond to the Average Voice Consistency,
+Precision, Recall, and F1-Measure, each as an average over all of the songs given in the `Files` argument.
+These metrics are defined precicely in the paper.
+
+The verbose `-r` output has the standard output as its final line, and also prints the following for each of the
+songs given in the `Files` argument:
+
+`FileName`
+`Correct` / `Total` = `Voice Consistency`
+...
+P=`Precision`
+R=`Recall`
+F1=`F1-Measure`
+
+Here, the "`Correct` / `Total` = `Voice Consistency`" line is repeated per voice, and the Voice Consistency
+metric is again defined in the paper.
+
+The training output consists of the standard (or verbose) `-r` output for each unique setting of the parameters,
+followed by a single line of output of `BEST =` followed by the non-verbose output from the parameter settings
+which achieved the greatest F1-Measure.
 
 ### Examples
 To tune on the files in the directory "midi" with a step of 7 and print verbose results:
- * `$ java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 7 -v midi`
+ * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 7 -v midi`
 
 To test on the files in the directory "midi" using all default values except a beam size of 25:
- * `$ java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r -b 25 midi`
+ * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r -b 25 midi`
 
 To train and test on the files in the directory "midi" using a step of 10 in training:
- * `$ java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 10 -r midi`
+ * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 10 -r midi`
 
 
 ### Troubleshooting
