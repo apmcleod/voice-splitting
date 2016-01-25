@@ -67,12 +67,12 @@ These metrics are defined precicely in the paper.
 The verbose `-r` output has the standard output as its final line, and also prints the following for each of the
 songs given in the `Files` argument:
 
-`FileName`
-`Correct` / `Total` = `Voice Consistency`
-...
-P=`Precision`
-R=`Recall`
-F1=`F1-Measure`
+`FileName`  
+`Correct` / `Total` = `Voice Consistency`  
+...  
+P=`Precision`  
+R=`Recall`  
+F1=`F1-Measure`  
 
 Here, the "`Correct` / `Total` = `Voice Consistency`" line is repeated per voice, and the Voice Consistency
 metric is again defined in the paper.
@@ -81,15 +81,15 @@ The training output consists of the standard (or verbose) `-r` output for each u
 followed by a single line of output of `BEST =` followed by the non-verbose output from the parameter settings
 which achieved the greatest F1-Measure.
 
-### Examples
+#### Examples
 To tune on the files in the directory "midi" with a step of 7 and print verbose results:
  * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 7 -v midi`
 
 To test on the files in the directory "midi" using all default values except a beam size of 25:
  * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r -b 25 midi`
 
-To train and test on the files in the directory "midi" using a step of 10 in training:
- * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 10 -r midi`
+To test on the files in the directory "midi" using the default parameter settings:
+ * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r midi`
 
 
 ### Troubleshooting
