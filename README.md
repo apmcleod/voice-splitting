@@ -2,8 +2,8 @@
 The goal of this project is to have a Java program which is able to split MIDI performance
 data into monophonic voices.
 
-## Usage
-You are free to use this software as is allowed by the MIT License.
+## License
+You are free to use this software as is allowed by the [MIT License](https://github.com/apmcleod/voice-splitting/blob/master/License).
 I only ask that you please cite it as my work where appropriate, including
 the paper on my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html#VoiceSeparation)
 which has been accepted to be published in the Journal of New Music Research.
@@ -18,12 +18,21 @@ The java files can all be compiled into class files in a bin directory using the
 included with the project with the following command: `make`.
 
 ## Running
-Once the class files are installed in the bin directory, the project can be run. To run the
-GUI version of the project, use the command `java -cp bin voicesplitting.gui.VoiceSplittingGUI`.
-To run the project from the command line, use the command `$ java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester`.
-You should get an argument error. The proper arguments for running the VoiceSplittingTester are as follows:
+Once the class files are installed in the bin directory, the project can be run, either using the
+[GUI](#gui) or from the [command line](#command-line).
+
+### GUI
+To run the GUI version of the project, use the command `java -cp bin voicesplitting.gui.VoiceSplittingGUI`.
+
+### Command Line
+#### Basics
+To run the project from the command line, use the command
 
 `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester ARGS Files`
+
+Here, `Files` should be a list of 1 or more MIDI files or directories containing only MIDI
+files. Any directories listed will be searched recursively for all files, and if any of the files
+found are not in MIDI format, an exception will be thrown.
 
 ARGS:
  * Running arguments:
@@ -33,16 +42,15 @@ ARGS:
    * `-v` = Verbose (print out each song and each individual voice when running).
    * `-T` = Use tracks as correct voice (instead of channels). See [Troubleshooting](#troubleshooting)
      for more information.
- * Parameter arguments (used only if `-r` is also used):
-   * `-b INT` = Set the Beam Size parameter to the value INT (defualt = 2).
-   * `-n DOUBLE` = Set the New Voice Probability parameter to the value DOUBLE(defualt = 1.0E-8).
-   * `-h INT` = Set the Pitch History Length parameter to the value INT(defualt = 6).
-   * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE(defualt = 100000.0).
-   * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE(defualt = 4.0).
-   * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE(defualt = 5.1E-5).
- 
-Files should be a list of 1 or more MIDI files or directories containing only MIDI
-files. Any directory entered will be searched recursively for files.
+     
+If running with `-r`, the following arguments can be used to change the parameter settings from their default
+values (those with which we tested the computer generated WTC fugues in the paper):
+   * `-b INT` = Set the Beam Size parameter to the value INT (defualt = 25).
+   * `-n DOUBLE` = Set the New Voice Probability parameter to the value DOUBLE (defualt = 5E-10).
+   * `-h INT` = Set the Pitch History Length parameter to the value INT (defualt = 11).
+   * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE (defualt = 224000).
+   * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE (defualt = 4).
+   * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE (defualt = 7E-5).
 
 ### Examples
 To tune on the files in the directory "midi" with a step of 7 and print verbose results:

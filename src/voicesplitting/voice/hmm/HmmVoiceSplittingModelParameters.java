@@ -12,11 +12,21 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	public final double MIN_GAP_SCORE;
 	
 	/**
+	 * The default value for {@link #MIN_GAP_SCORE}.
+	 */
+	public static final double MIN_GAP_SCORE_DEFAULT = 7E-5;
+	
+	/**
 	 * The standard deviation to use for the Gaussian distribution used to calculate the
 	 * pitch score. A pitch gap of exactly this many
 	 * semitones will result in a Gaussian score of 1/sqrt(e).
 	 */
 	public final double PITCH_STD;
+	
+	/**
+	 * The default value for {@link #PITCH_STD}.
+	 */
+	public static final double PITCH_STD_DEFAULT = 4;
 
 	/**
 	 * The standard deviation to use for the Gaussian distribution used to calculate the
@@ -25,9 +35,19 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	public final double GAP_STD_MICROS;
 	
 	/**
+	 * The default value for {@link #GAP_STD_MICROS}.
+	 */
+	public static final double GAP_STD_MICROS_DEFAULT = 224000;
+	
+	/**
 	 * The number of chords back we want to look in order to determine the weighted pitch.
 	 */
 	public final int PITCH_HISTORY_LENGTH;
+	
+	/**
+	 * The default value for {@link #PITCH_HISTORY_LENGTH}
+	 */
+	public static final int PITCH_HISTORY_LENGTH_DEFAULT = 11;
 	
 	/**
 	 * The probability score to return for adding a note to an empty Voice.
@@ -35,9 +55,19 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	public final double NEW_VOICE_PROBABILITY;
 	
 	/**
+	 * The default value for {@link #NEW_VOICE_PROBABILITY}.
+	 */
+	public static final double NEW_VOICE_PROBABILITY_DEFAULT = 5E-10;
+	
+	/**
 	 * The beam size for our search. It seems that 1 is optimal anyways, so we can remove this probably.
 	 */
 	public final int BEAM_SIZE;
+	
+	/**
+	 * The default value for {@link #BEAM_SIZE}.
+	 */
+	public static final int BEAM_SIZE_DEFAULT = 25;
 	
 	/**
 	 * Create a new params object with the given values.
@@ -59,10 +89,18 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	}
 	
 	/**
-	 * Create new params with default values.
+	 * Create new params with default values. The default values referred to here are those found to be optimized
+	 * when tuning to test on the computer-generated WTC Fugues, as noted in the paper. Specifically:
+	 * <br>
+	 * {@link #BEAM_SIZE}<code> = 25</code>
+	 * {@link #NEW_VOICE_PROBABILITY}<code> = 5E-10</code>
+	 * {@link #PITCH_HISTORY_LENGTH}<code> = 11</code>
+	 * {@link #GAP_STD_MICROS}<code> = 224000</code>
+	 * {@link #PITCH_STD}<code> = 4</code>
+	 * {@link #MIN_GAP_SCORE}<code> = 7E-5</code>
 	 */
 	public HmmVoiceSplittingModelParameters() {
-		this(25, 1.09E-8, 6, 224000, 5.5, 9.01E-5);
+		this(BEAM_SIZE_DEFAULT, NEW_VOICE_PROBABILITY_DEFAULT, PITCH_HISTORY_LENGTH_DEFAULT, GAP_STD_MICROS_DEFAULT, PITCH_STD_DEFAULT, MIN_GAP_SCORE_DEFAULT);
 	}
 	
 	@Override

@@ -80,12 +80,12 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		boolean run = false;
 		
 		// default values
-		int BS = 2;
-		double NVP = 1.0E-8;
-		int PHL = 6;
-		double GSM = 100000.0;
-		double PS = 4.0;
-		double MGS = 5.1E-5;
+		int BS = HmmVoiceSplittingModelParameters.BEAM_SIZE_DEFAULT;
+		double NVP = HmmVoiceSplittingModelParameters.NEW_VOICE_PROBABILITY_DEFAULT;
+		int PHL = HmmVoiceSplittingModelParameters.PITCH_HISTORY_LENGTH_DEFAULT;
+		double GSM = HmmVoiceSplittingModelParameters.GAP_STD_MICROS_DEFAULT;
+		double PS = HmmVoiceSplittingModelParameters.PITCH_STD_DEFAULT;
+		double MGS = HmmVoiceSplittingModelParameters.MIN_GAP_SCORE_DEFAULT;
 		
 		int steps = 10;
 		
