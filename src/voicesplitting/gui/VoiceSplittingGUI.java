@@ -37,7 +37,7 @@ import voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters;
 import voicesplitting.voice.hmm.HmmVoiceSplittingModelTester;
 
 /**
- * The <code>BeatTrackingGUI</code> is the class which creates the gui for the beat tracking project.
+ * The <code>VoiceSplittingGUI</code> is the class which creates the gui for the beat tracking project.
  * This {@link #main(String[])} method should be run if you want to use the gui.
  * 
  * @author Andrew McLeod - 17 June, 2015
@@ -126,7 +126,7 @@ public class VoiceSplittingGUI extends JFrame {
 	 */
 	public void initComponents() {
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Beat Tracking");
+        setTitle("Voice Splitting");
         
         this.setJMenuBar(new VoiceSplittingGUIMenuBar());
         
@@ -531,7 +531,7 @@ JFileChooser chooser = new JFileChooser();
 	}
 	
 	/**
-	 * Get the current BeatTrackingRunner.
+	 * Get the current VoiceSplittingRunner.
 	 * 
 	 * @return {@link #runner}
 	 */
