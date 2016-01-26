@@ -89,13 +89,13 @@ which achieved the greatest F1-Measure.
 
 #### Examples
 To tune on the files in the directory "midi" with a step of 7 and print verbose results:
- * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 7 -v midi`
+> `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -t 7 -v midi`
 
 To test on the files in the directory "midi" using all default values except a beam size of 25:
- * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r -b 25 midi`
+> `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r -b 25 midi`
 
 To test on the files in the directory "midi" using the default parameter settings:
- * `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r midi`
+> `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -r midi`
 
 
 ### Troubleshooting
