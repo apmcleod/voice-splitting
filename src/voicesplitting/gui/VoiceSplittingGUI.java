@@ -111,7 +111,7 @@ public class VoiceSplittingGUI extends JFrame {
 	 */
 	public void initComponents() {
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Beat Tracking");
+        setTitle("Voice Splitting");
         
         this.setJMenuBar(new VoiceSplittingGUIMenuBar());
         
