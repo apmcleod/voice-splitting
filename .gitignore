@@ -2,3 +2,4 @@
 .project
 bin/**
 src/**
+Makefile
