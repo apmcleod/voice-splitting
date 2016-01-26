@@ -19,6 +19,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -67,6 +68,12 @@ public class VoiceSplittingGUI extends JFrame {
 	 * The label showing the currently loaded MIDI file.
 	 */
 	private JLabel fileNameLabel;
+	
+	/**
+	 * The checkbox marking whether to use channels to get the correct voice (checked, default),
+	 * or tracks (unchecked).
+	 */
+	private JCheckBox useChannelCheckBox;
 	
 	/**
 	 * The button used to toggle voice separation.
@@ -124,6 +131,13 @@ public class VoiceSplittingGUI extends JFrame {
             }
         });
         
+        useChannelCheckBox = new JCheckBox("Use Channel");
+        useChannelCheckBox.setSelected(true);
+        useChannelCheckBox.setToolTipText("Toggle whether to use channels (checked) or tracks (unchecked) as gold standard voices.\n" +
+        									"Note that this requires manually reloading the file to update.");
+        useChannelCheckBox.setBackground(Color.BLACK);
+        useChannelCheckBox.setForeground(Color.WHITE);
+        
         separateButton = new JButton(GUIConstants.SEPARATE);
         separateButton.setEnabled(false);
         separateButton.addActionListener(new ActionListener() {
@@ -139,6 +153,7 @@ public class VoiceSplittingGUI extends JFrame {
         fileContainer.add(fileNameLabel);
         fileNameLabel.setForeground(Color.GRAY);
         fileContainer.add(fileLoaderButton);
+        fileContainer.add(useChannelCheckBox);
         
         // Midi Note displayer
         Component noteChart = initNoteChart();
@@ -377,7 +392,7 @@ public class VoiceSplittingGUI extends JFrame {
     			@Override
     			protected VoiceSplittingRunner doInBackground() throws IOException, InvalidMidiDataException {
     				try {
-						return new VoiceSplittingRunner(midiFile);
+						return new VoiceSplittingRunner(midiFile, shouldUseChannel());
 					} catch (InterruptedException e) {
 						return null;
 					}
@@ -525,6 +540,15 @@ public class VoiceSplittingGUI extends JFrame {
 	 */
 	public void setParams(VoiceSplittingParameters params) {
 		this.params = params;
+	}
+	
+	/**
+	 * Get whether we are supposed to be reading in data with the correct voice as channels or tracks.
+	 * 
+	 * @return True if we should use channels. False to use tracks.
+	 */
+	protected boolean shouldUseChannel() {
+		return useChannelCheckBox.isSelected();
 	}
 	
 	/**

@@ -19,7 +19,7 @@ public class TimeTracker {
 	/**
 	 * Pulses (ticks) per Quarter note, as in the current Midi song's header.
 	 */
-	public static double PPQ;
+	private double PPQ;
 	
 	/**
 	 * The LInkedList of TimeTrackerNodes of this TimeTracker, ordered by time.
@@ -31,7 +31,7 @@ public class TimeTracker {
 	 */
     public TimeTracker() {
     	nodes = new LinkedList<TimeTrackerNode>();
-    	nodes.add(new TimeTrackerNode(null, 0L));
+    	nodes.add(new TimeTrackerNode(null, 0L, PPQ));
     }
     
     /**
@@ -44,7 +44,7 @@ public class TimeTracker {
     	TimeSignature ts = new TimeSignature(mm.getData());
     	
     	if (!ts.equals(nodes.getLast().getTimeSignature())) {
-    		nodes.add(new TimeTrackerNode(nodes.getLast(), event.getTick()));
+    		nodes.add(new TimeTrackerNode(nodes.getLast(), event.getTick(), PPQ));
     		nodes.getLast().setTimeSignature(ts);
     	}
     }
@@ -59,7 +59,7 @@ public class TimeTracker {
     	Tempo t = new Tempo(mm.getData());
     	
     	if (!t.equals(nodes.getLast().getTempo())) {
-    		nodes.add(new TimeTrackerNode(nodes.getLast(), event.getTick()));
+    		nodes.add(new TimeTrackerNode(nodes.getLast(), event.getTick(), PPQ));
     		nodes.getLast().setTempo(t);
     	}
     }
@@ -74,7 +74,7 @@ public class TimeTracker {
     	KeySignature ks = new KeySignature(mm.getData());
     	
     	if (!ks.equals(nodes.getLast().getKeySignature())) {
-    		nodes.add(new TimeTrackerNode(nodes.getLast(), event.getTick()));
+    		nodes.add(new TimeTrackerNode(nodes.getLast(), event.getTick(), PPQ));
     		nodes.getLast().setKeySignature(ks);
     	}
 	}
@@ -88,7 +88,7 @@ public class TimeTracker {
      * @see TimeTrackerNode#getBeatAtTick(long)
      */
     public Beat getBeatAtTick(long tick) {
-    	return getNodeAtTick(tick).getBeatAtTick(tick);
+    	return getNodeAtTick(tick).getBeatAtTick(tick, PPQ);
     }
     
     /**
@@ -98,7 +98,7 @@ public class TimeTracker {
      * @return The time of the given tick number, measured in microseconds since the most recent epoch.
      */
     public long getTimeAtTick(long tick) {
-    	return getNodeAtTick(tick).getTimeAtTick(tick);
+    	return getNodeAtTick(tick).getTimeAtTick(tick, PPQ);
     }
     
     /**
@@ -130,7 +130,7 @@ public class TimeTracker {
      * @return The tick number which corresponds to the given time.
      */
     public long getTickAtTime(long time) {
-    	return getNodeAtTime(time).getTickAtTime(time);
+    	return getNodeAtTime(time).getTickAtTime(time, PPQ);
     }
     
     /**
@@ -162,6 +162,24 @@ public class TimeTracker {
      */
     public LinkedList<TimeTrackerNode> getNodes() {
     	return nodes;
+    }
+    
+    /**
+     * Set the PPQ for this TimeTracker.
+     * 
+     * @param ppq {@link #PPQ}
+     */
+    public void setPPQ(double ppq) {
+    	PPQ = ppq;
+    }
+    
+    /**
+     * Get the PPQ of this TimeTracker.
+     * 
+     * @return {@link #PPQ}
+     */
+    public double getPPQ() {
+    	return PPQ;
     }
 	
 	@Override

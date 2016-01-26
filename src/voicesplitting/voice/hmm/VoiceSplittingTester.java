@@ -73,6 +73,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	public static void main(String[] args) throws InvalidMidiDataException, IOException, MidiUnavailableException, InterruptedException, ExecutionException {
 		boolean tune = false;
 		boolean run = false;
+		boolean useChannel = true;
 		
 		// default values
 		int BS = 2;
@@ -105,6 +106,11 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 				}
 				
 				switch (args[i].charAt(1)) {
+					case 'T':
+						// Use tracks
+						useChannel = false;
+						break;
+						
 					case 'v':
 						// Verbose
 						VERBOSE = true;
@@ -193,7 +199,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 			}
 		}
 		
-		songs = getSongs(files);
+		songs = getSongs(files, useChannel);
 		
 		VoiceSplittingParameters params = new VoiceSplittingParameters(BS, NVP, PHL, GSM, PS, MGS);
 		
@@ -401,12 +407,13 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 	 * Get the songs in the given midi Files.
 	 * 
 	 * @param files A List of Files (should be midi files).
+	 * @param useChannel Whether to use channels (true) or tracks (false) as gold standard voices.
 	 * @return A List of the same songs.
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 * @throws MidiUnavailableException
 	 */
-	private static List<List<MidiNote>> getSongs(List<File> files) throws InvalidMidiDataException, IOException, MidiUnavailableException {
+	private static List<List<MidiNote>> getSongs(List<File> files, boolean useChannel) throws InvalidMidiDataException, IOException, MidiUnavailableException {
 		List<List<MidiNote>> songs = new ArrayList<List<MidiNote>>(files.size());
 		goldStandard = new ArrayList<List<List<MidiNote>>>(files.size());
 		
@@ -414,7 +421,7 @@ public class VoiceSplittingTester implements Callable<VoiceSplittingTesterReturn
 			TimeTracker tt = new TimeTracker();
 			NoteListGenerator nlg = new NoteListGenerator(tt);
 		
-			EventParser ep = new EventParser(midi, nlg, tt);
+			EventParser ep = new EventParser(midi, nlg, tt, useChannel);
 			try {
 				ep.run();
 			} catch (InterruptedException e) {

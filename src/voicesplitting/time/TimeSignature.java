@@ -69,10 +69,11 @@ public class TimeSignature {
 	/**
 	 * Get the number of MIDI ticks per 32nd note at this time signature.
 	 * 
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The number of MIDI ticks per 32nd note.
 	 */
-	public int getTicksPerNote32() {
-		return (int) (TimeTracker.PPQ / notes32PerQuarter);
+	public int getTicksPerNote32(double ppq) {
+		return (int) (ppq / notes32PerQuarter);
 	}
 	
 	/**

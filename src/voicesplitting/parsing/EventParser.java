@@ -3,6 +3,7 @@ package voicesplitting.parsing;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -31,6 +32,16 @@ import voicesplitting.utils.MidiNote;
  * @author Andrew McLeod - 23 October, 2014
  */
 public class EventParser {
+	/**
+	 * The mask for reading the channel number from a MidiMessage.
+	 */
+	public static final int CHANNEL_MASK = 0x0f;
+	
+	/**
+	 * The mask for reading the message type from a MidiMessage.
+	 */
+	public static final int MESSAGE_MASK = 0xf0;
+	
 	/**
 	 * The constant which midi uses for tempo change events.
 	 */
@@ -65,24 +76,32 @@ public class EventParser {
 	 * The gold standard voices from this song.
 	 */
 	private List<List<MidiNote>> goldStandard;
+	
+	/**
+	 * True if we want to use the input data's channel as gold standard voices. False to use track instead.
+	 */
+	private boolean useChannel;
     
 	/**
 	 * Creates a new Midi EventParser
 	 * 
 	 * @param midiFile The MIDI file we will parse.
-	 * @param noteEventParser The NoteTracker to pass events to when we run this parser.
+	 * @param noteEventParser The NoteEventParser to pass events to when we run this parser.
+	 * @param useChannel True if we want to use the input data's channel as gold standard voices.
+	 * False to use track instead.
 	 * @throws IOException If an I/O error occurred when reading the given file. 
 	 * @throws InvalidMidiDataException If the given file was is not in a valid MIDI format.
 	 */
-    public EventParser(File midiFile, NoteEventParser noteEventParser, TimeTracker timeTracker)
+    public EventParser(File midiFile, NoteEventParser noteEventParser, TimeTracker timeTracker, boolean useChannel)
     		throws InvalidMidiDataException, IOException{
     	song = MidiSystem.getSequence(midiFile);
     	
     	this.noteEventParser = noteEventParser;
     	this.timeTracker = timeTracker;
     	
-    	TimeTracker.PPQ = song.getResolution();
+    	timeTracker.setPPQ(song.getResolution());
     	
+    	this.useChannel = useChannel;
     	goldStandard = new ArrayList<List<MidiNote>>(song.getTracks().length);
     }
 	
@@ -92,9 +111,9 @@ public class EventParser {
      * @throws InterruptedException If this is running on a GUI and gets cancelled.
      */
     public void run() throws InvalidMidiDataException, InterruptedException {
-        for (int j = 0; j < song.getTracks().length; j++) {
-        	List<MidiNote> goldVoice = new ArrayList<MidiNote>();
-        	Track track = song.getTracks()[j];
+    	long lastTick = 0;
+        for (int trackNum = 0; trackNum < song.getTracks().length; trackNum++) {
+        	Track track = song.getTracks()[trackNum];
         	// multi-track support
         	
             for (int i = 0; i < track.size(); i++) {
@@ -109,6 +128,8 @@ public class EventParser {
                 MidiMessage message = event.getMessage();
                 ShortMessage sm;
                 int status = message.getStatus();
+                
+                lastTick = Math.max(lastTick, event.getTick());
                 
                 if (status == MetaMessage.META) {
                 	MetaMessage mm = (MetaMessage) message;
@@ -134,7 +155,11 @@ public class EventParser {
                 	}
                 	
                 } else {
-	                switch (status & 0xf0) {
+                	int channel = status & CHANNEL_MASK;
+                	
+                	int correctVoice = useChannel ? channel : trackNum;
+                	
+	                switch (status & MESSAGE_MASK) {
 		                	
 	                	case ShortMessage.NOTE_ON:
 	                		sm = (ShortMessage) message;
@@ -143,8 +168,11 @@ public class EventParser {
 	                        velocity = sm.getData2();
 	                        
 	                        if (velocity != 0) {
-	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), j);
-	                        	goldVoice.add(note);
+	                        	MidiNote note = noteEventParser.noteOn(key, velocity, event.getTick(), correctVoice);
+	                        	while (goldStandard.size() <= correctVoice) {
+	                        		goldStandard.add(new ArrayList<MidiNote>());
+	                        	}
+	                        	goldStandard.get(correctVoice).add(note);
 	                        	break;
 	                        }
 	                        
@@ -154,7 +182,7 @@ public class EventParser {
 	                		
 	                		key = sm.getData1();
 	                		
-	                        noteEventParser.noteOff(key, event.getTick(), j);
+	                        noteEventParser.noteOff(key, event.getTick(), correctVoice);
 	                        break;
 	                        
 	                    default:
@@ -162,7 +190,10 @@ public class EventParser {
 	                }
 	            }
             }
-            goldStandard.add(goldVoice);
+        }
+        
+        for (List<MidiNote> gS : goldStandard) {
+        	Collections.sort(gS);
         }
     }
     
@@ -178,16 +209,6 @@ public class EventParser {
     	player.open();
     	player.setSequence(song);
     	player.start();
-    }
-    
-    /**
-     * Write the currently loaded MIDI data out to a file. 
-     * 
-     * @param outFile The File to write out to.
-     * @throws IOException
-     */
-    public void write(File outFile) throws IOException {
-    	MidiSystem.write(song, 1, outFile);
     }
     
     /**

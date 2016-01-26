@@ -55,7 +55,7 @@ public class MidiWriter {
 		this.outFile = outFile;
 		timeTracker = tt;
 		
-		sequence = new Sequence(Sequence.PPQ, (int) TimeTracker.PPQ);
+		sequence = new Sequence(Sequence.PPQ, (int) tt.getPPQ());
 		sequence.createTrack();
 		
 		writeTimeTracker();
@@ -184,22 +184,22 @@ public class MidiWriter {
 	 * @throws InvalidMidiDataException If the MidiNote contains invalid Midi data. 
 	 */
 	public void addMidiNote(MidiNote note) throws InvalidMidiDataException {
-		int trackNumber = note.getTrackNumber();
+		int correctVoice = note.getTrackNumber();
 		
 		// Pad with enough tracks
-		while (sequence.getTracks().length <= trackNumber) {
+		while (sequence.getTracks().length <= correctVoice) {
 			sequence.createTrack();
 		}
 		
 		// Get the correct track
-		Track track = sequence.getTracks()[trackNumber];
+		Track track = sequence.getTracks()[correctVoice];
 		
 		ShortMessage noteOn = new ShortMessage();
-		noteOn.setMessage(ShortMessage.NOTE_ON, note.getPitch(), note.getVelocity());
+		noteOn.setMessage(ShortMessage.NOTE_ON | correctVoice, note.getPitch(), note.getVelocity());
 		MidiEvent noteOnEvent = new MidiEvent(noteOn, note.getOnsetTick());
 		
 		ShortMessage noteOff = new ShortMessage();
-		noteOff.setMessage(ShortMessage.NOTE_OFF, note.getPitch(), 0);
+		noteOff.setMessage(ShortMessage.NOTE_OFF | correctVoice, note.getPitch(), 0);
 		MidiEvent noteOffEvent = new MidiEvent(noteOff, note.getOffsetTick());
 		
 		track.add(noteOnEvent);

@@ -55,19 +55,20 @@ public class TimeTrackerNode {
 	 * 
 	 * @param prev The previous TimeTrackerNode
 	 * @param tick The tick at which this new one becomes valid.
+	 * @param ppq The pulses per quarter note of the song.
 	 */
-	public TimeTrackerNode(TimeTrackerNode prev, long tick) {
+	public TimeTrackerNode(TimeTrackerNode prev, long tick, double ppq) {
 		startTick = tick;
 		
 		if (prev != null) {
-			startTime = prev.getTimeAtTick(tick);
-			startBeat = prev.getBeatAtTick(tick);
-			startTicksAfterBeat = prev.getRemainderTicks(tick);
+			startTime = prev.getTimeAtTick(tick, ppq);
+			startBeat = prev.getBeatAtTick(tick, ppq);
+			startTicksAfterBeat = prev.getRemainderTicks(tick, ppq);
 			timeSignature = prev.getTimeSignature();
 			tempo = prev.getTempo();
 			keySignature = prev.getKeySignature();
 			
-			if (startTicksAfterBeat >= getTimeSignature().getTicksPerNote32() / 2) {
+			if (startTicksAfterBeat >= getTimeSignature().getTicksPerNote32(ppq) / 2) {
 				startBeat.decrement(1);
 			}
 			
@@ -83,22 +84,24 @@ public class TimeTrackerNode {
 	 * Gets the number of ticks between the given tick number and the beat immediately preceeding it.
 	 * 
 	 * @param tick The tick which we want to measure
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The number of ticks between the given tick and the preceeding beat.
 	 */
-	public int getRemainderTicks(long tick) {
+	public int getRemainderTicks(long tick, double ppq) {
 		long elapsedTicks = tick - startTick + startTicksAfterBeat;
-		return (int) (elapsedTicks % timeSignature.getTicksPerNote32());
+		return (int) (elapsedTicks % timeSignature.getTicksPerNote32(ppq));
 	}
 	
 	/**
 	 * Get the Beat at the given tick, rounded to the nearest whole number.
 	 * 
 	 * @param tick The tick at which we want the beat number.
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The Beat closest to the given tick.
 	 */
-	public Beat getBeatAtTick(long tick) {
+	public Beat getBeatAtTick(long tick, double ppq) {
 		long elapsedTicks = tick - startTick + startTicksAfterBeat;
-		int elapsedBeats = (int) ((elapsedTicks + (timeSignature.getTicksPerNote32() / 2)) / timeSignature.getTicksPerNote32());
+		int elapsedBeats = (int) ((elapsedTicks + (timeSignature.getTicksPerNote32(ppq) / 2)) / timeSignature.getTicksPerNote32(ppq));
 		return startBeat.shallowCopy().increment(elapsedBeats);
 	}
 
@@ -106,41 +109,45 @@ public class TimeTrackerNode {
 	 * Get the Beat at the given time, rounded to the nearest whole number.
 	 * 
 	 * @param time The time at which we want the beat number, measured in microseconds.
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The Beat closest to the given time.
 	 */
-	public Beat getBeatAtTime(long time) {
-		return getBeatAtTick(getTickAtTime(time));
+	public Beat getBeatAtTime(long time, double ppq) {
+		return getBeatAtTick(getTickAtTime(time, ppq), ppq);
 	}
 	
 	/**
 	 * Get the tick number at the given time.
 	 * 
 	 * @param time The time at which we want the tick, measured in microseconds.
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The tick at the given time.
 	 */
-	public long getTickAtTime(long time) {
+	public long getTickAtTime(long time, double ppq) {
 		long timeOffset = time - getStartTime();
-		return (long) (timeOffset / getTimePerTick()) + getStartTick();
+		return (long) (timeOffset / getTimePerTick(ppq)) + getStartTick();
 	}
 	
 	/**
 	 * Get the time at the given tick.
 	 * 
 	 * @param tick The tick at which we want the time.
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The time at the given tick, measured in microseconds.
 	 */
-	public long getTimeAtTick(long tick) {
+	public long getTimeAtTick(long tick, double ppq) {
 		long tickOffset = tick - getStartTick();
-		return (long) (tickOffset * getTimePerTick()) + getStartTime();
+		return (long) (tickOffset * getTimePerTick(ppq)) + getStartTime();
 	}
 	
 	/**
 	 * Gets the amount of time, in microseconds, that passes between each tick.
 	 * 
+	 * @param ppq The pulses per quarter note of the song.
 	 * @return The length of a tick in microseconds.
 	 */
-	private double getTimePerTick() {
-		return tempo.getMicroSecondsPerQuarter() / TimeTracker.PPQ;
+	private double getTimePerTick(double ppq) {
+		return tempo.getMicroSecondsPerQuarter() / ppq;
 	}
 	
 	/**
