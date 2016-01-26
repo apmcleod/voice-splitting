@@ -2,6 +2,12 @@
 The goal of this project is to have a Java program which is able to split MIDI performance
 data into monophonic voices.
 
+Note that some MIDI files separate voices by channel, while some
+do so by track. This project uses channel by default, but this can be changed by using the
+`-T` flag when running from the command line, or by unchecking the `Use Channel` box (and
+then reloading the file) if using the GUI. MIDI files written out by this software will have
+voices divided by both channel and track.
+
 ## License
 You are free to use this software as is allowed by the [MIT License](https://github.com/apmcleod/voice-splitting/blob/master/License).
 I only ask that you please cite it as my work where appropriate, including
@@ -28,7 +34,7 @@ To run the GUI version of the project, use the command `java -cp bin voicesplitt
 #### Arguments
 To run the project from the command line, use the command
 
-`java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester ARGS Files`
+> `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester ARGS Files`
 
 Here, `Files` should be a list of 1 or more MIDI files or directories containing only MIDI
 files. Any directories listed will be searched recursively for all files, and if any of the files
@@ -36,11 +42,11 @@ found are not in MIDI format, an exception will be thrown.
 
 ARGS:
  * Running arguments:
+   * `-r` = Run a test (if used with -t, we will use the tuned parameters instead of any given).
    * `-t [STEPS]` = Tune to maximize F1-Measure, and optionally set the number of steps to make
      within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      method rather than your own script because it runs the tests in parallel as much as possible to speed up
      training.
-   * `-r` = Run a test (if used with -t, we will use the tuned parameters instead of any given).
    * `-v` = Verbose (print out each song and each individual voice when running).
    * `-T` = Use tracks as correct voice (instead of channels). See [Troubleshooting](#troubleshooting)
      for more information.
@@ -57,7 +63,7 @@ values (those with which we tested the computer generated WTC fugues in the pape
 #### Output
 The standard (non-verbose) `-r` output has the following format:
 
-(`b`,`n`,`h`,`g`,`p`,`m`) = V=`Average Voice Consistency` P=`Precision` R=`Recall` F1=`F1-Measure`
+> (`b`,`n`,`h`,`g`,`p`,`m`) = V=`Average Voice Consistency` P=`Precision` R=`Recall` F1=`F1-Measure`
 
 Here, the letters within the parentheses on the left represent the settings of the parameters as listed
 in the [Arguments](#arguments) section above. The values on the right correspond to the Average Voice Consistency,
@@ -67,12 +73,12 @@ These metrics are defined precicely in the paper.
 The verbose `-r` output has the standard output as its final line, and also prints the following for each of the
 songs given in the `Files` argument:
 
-`FileName`  
-`Correct` / `Total` = `Voice Consistency`  
-...  
-P=`Precision`  
-R=`Recall`  
-F1=`F1-Measure`  
+> `FileName`  
+> `Correct` / `Total` = `Voice Consistency`  
+> ...  
+> P=`Precision`  
+> R=`Recall`  
+> F1=`F1-Measure`  
 
 Here, the "`Correct` / `Total` = `Voice Consistency`" line is repeated per voice, and the Voice Consistency
 metric is again defined in the paper.
@@ -102,8 +108,8 @@ stderr. In general, there are 2 main types of errors:
    by Java. There is currently no way to solve this issue besides looking for new MIDI files.
 
 If the results you are getting seem very low, try using the `-T` flag if running from the command line,
-or unchecking the `Use Channel` box if using the GUI. Some MIDI files divide notes into voices
-by track while others do it by channel. MIDI files created by this software does both.
+or unchecking the `Use Channel` box (and then reloading the file) if using the GUI. Some MIDI files
+divide notes into voices by track while others do it by channel. MIDI files created by this software does both.
 
 ## Contact
 Please let me know if you are interested in using my work. If you run into any problems installing it,
