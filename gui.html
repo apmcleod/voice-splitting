@@ -30,10 +30,9 @@
 		
 	<h3 id="sec-running">1. Running the Program</h3>
 	
-		<p>To run the program, simply use the command
+		<p>To run the program, simply use the command</p>
 		
 		<pre><code>java -cp bin voicesplitting.gui.VoiceSplittingGUI</code></pre>
-		</p>
 		
 		<p>The following window should pop up.</p>
 		
@@ -45,7 +44,7 @@
 		    <th>Function</th>
 		  </tr>
 		  <tr>
-		    <td>1</td>
+		    <td><label>1</label></td>
 		    <td>File menu with three options:
 		      <ul>
 		        <li><code>Load...</code>: Load a new MIDI file.</li>
@@ -95,6 +94,13 @@
 		
 	<h3 id="sec-loading">2. Loading a MIDI File</h3>
 
+		<p>When loading a MIDI file, it is important to that the use channel checkbox (#3 above) is set correctly. By default,
+		MIDI channels are used as gold standard voices for the notes, but some MIDI files use tracks instead to label voices.
+		If yours use tracks, make sure the box is unchecked. Otherwise, you will have to reload the file to get correct
+		note coloring and accuracy reporting.</p>
+		
+		<p>You can load a MIDI file either by clicking the <code>Load File</code> button, or by selecting <code>File</code>->
+		<code>Load...</code> from the menu bar at the top of the window.</p> 
 
     </section>
 
