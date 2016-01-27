@@ -30,10 +30,68 @@
 		
 	<h3 id="sec-running">1. Running the Program</h3>
 	
-		<p>To run the program, simply use the command:
+		<p>To run the program, simply use the command
 		
 		<pre><code>java -cp bin voicesplitting.gui.VoiceSplittingGUI</code></pre>
 		</p>
+		
+		<p>The following window should pop up.</p>
+		
+		<img src="images/blank.png" alt="blank window">
+		
+		<table>
+		  <tr>
+		    <th>Label</th>
+		    <th>Function</th>
+		  </tr>
+		  <tr>
+		    <td>1</td>
+		    <td>File menu with three options:
+		      <ul>
+		        <li><code>Load...</code>: Load a new MIDI file.</li>
+		        <li><code>Export MIDI...</code>: Export the currently loaded MIDI data to a file. This is useful
+		        	when you have changed any meta-data about any of the notes from a loaded file.</li>
+		        <li><code>Preferences...</code>: Open the preferences window which allows the change of any of
+		        	the voice splitting parameters.</li>
+		      </ul>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td>2</td>
+		    <td>A text box which displays the name of the currently loaded MIDI file, as well as a <code>Load File</code> button.</td>
+		  </tr>
+		  <tr>
+		    <td>3</td>
+		    <td>A checkbox to toggle whether to use channels (checked, default) or tracks (unchecked) as gold standard voice assignments
+		    	(and color-code the notes accordingly). This checkbox is only taken into account when a file is first loaded, so a file
+		    	must be reloaded for a change to be taken into account for coloring or accuracy calculation.</td>
+		  </tr>
+		  <tr>
+		    <td>4</td>
+		    <td>The main grid where notes are displayed. The notes are color-coded according to the setting of the use channel checkbox (#3).
+		    	The vertical axis represents the notes' pitches, and the horizontal axis represents time and is measured in seconds, where 0
+		    	is the beginning of the loaded MIDI performance.</td>
+		  </tr>
+		  <tr>
+		    <td>5</td>
+		    <td>Solo buttons, if any of them are active (depressed), only those notes which correspond to a channel (or track, depending
+		    	on the use channel checkbox) which is depressed will be displayed. This is useful when notes of different voices overlap.
+		    	The button on the far right with the red X will de-activate all of the solo buttons.</td>
+		  </tr>
+		  <tr>
+		    <td>6</td>
+		    <td>Zoom buttons for zooming the main grid in (+) or out (-) vertically.</td>
+		  </tr>
+		  <tr>
+		    <td>7</td>
+		    <td>Zoom buttons for zooming the main grid in (+) or out (-) horizontally.</td>
+		  </tr>
+		  <tr>
+		    <td>8</td>
+		    <td>The action button which separates the currently loaded MIDI data into voices (or unseparates, if the notes have already
+		    	been separated).</td>
+		  </tr>
+		</table>
 		
 	<h3 id="sec-loading">2. Loading a MIDI File</h3>
 
