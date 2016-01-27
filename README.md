@@ -17,7 +17,9 @@ which has been accepted to be published in the Journal of New Music Research.
 ## Documentation
 This document contains some basic code examples and a general overview of how to use
 the classes in this project. All specific documentation for the code found in this
-project can be found in the [Javadocs](https://apmcleod.github.io/voice-splitting/doc). 
+project can be found in the [Javadocs](https://apmcleod.github.io/voice-splitting/doc).
+
+An in-depth walkthrough of how to use the GUI can be found in the [GUI Readme](http://apmcleod.github.io/voice-splitting/gui.html).
 
 ## Installing
 The java files can all be compiled into class files in a bin directory using the Makefile
@@ -29,6 +31,7 @@ Once the class files are installed in the bin directory, the project can be run,
 
 ### GUI
 To run the GUI version of the project, use the command `java -cp bin voicesplitting.gui.VoiceSplittingGUI`.
+An in-depth walkthrough of how to use the GUI can be found in the [GUI Readme](http://apmcleod.github.io/voice-splitting/gui.html).
 
 ### Command Line
 #### Arguments
