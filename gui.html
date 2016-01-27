@@ -109,8 +109,8 @@
 	
 	  <h4 id="subsec-params">3.1. Setting the Parameters</h4>
 	  
-	  	<p>You can set the voice splitting parameters by selecting <code>File</code>-><code>Preferences...</code>, which causes
-	  	the following popup window to appear.</p>
+	  	<p>You can set the voice splitting parameters by selecting <code>File</code>-><code>Preferences...</code> from the menu bar,
+	  	which causes the following popup window to appear.</p>
 	  
 	  	<img src="images/parameters.png" alt="parameter popup">
 	  
@@ -129,8 +129,27 @@
 		as discussed in <a href="#sec-loading">section 2</a> above.</p>
 		
 	<h3 id="sec-notes">4. Advanced Note Interactions</h3>
+	
+		<p>Some changes to the loaded MIDI data can be made through the GUI. Note that the changes are not reflected back in the MIDI
+		file which was loaded. That can only be done by selecting <code>File</code>-><code>Export MIDI...</code> from the menu bar.</p>
 
-		<p>
+		<p>Notes can be selected by left clicking on them, and selected notes are highlighted with a white border. <code>Ctrl</code>
+		clicking will add the new selection to the current selection, while <code>Shift</code> clicking will select the range of notes
+		which fall within the rectangle created by the most recently clicked note and the newly clicked note. <code>Ctrl</code> and
+		<code>Shift</code> can be combined to add a range selection to the current selection. Range selection obeys the solo toggles
+		such that only notes which are visible will be selected.</p>
+		
+		<p>Once notes are selected, they can be interacted with by right clicking on them, which brings up a menu with three options:
+		
+		<ul>
+		  <li><code>Change Voice</code>: Changes the gold standard voice of the selected notes.</li>
+		  <li><code>Delete</code>: Deletes the selected notes entirely.</li>
+		  <li><code>Split Notes</code>: This option is only selected when exactly two notes are selected, and they overlap. It switches
+		  the offset times of the two notes. This is useful because note offsets will always be assigned to the most recent onset of
+		  equal pitch and channel (or track), though this is not always what is intended. This option can be used to fix the offsets
+		  of the selected notes (after which it is a good idea to assign them to different voices using the first option and then export
+		  the MIDI data with <code>File</code>-><code>Export MIDI...</code> from the menu bar to save the change).</li>
+		</ul>
 		
     </section>
 
