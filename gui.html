@@ -100,7 +100,30 @@
 		note coloring and accuracy reporting.</p>
 		
 		<p>You can load a MIDI file either by clicking the <code>Load File</code> button, or by selecting <code>File</code>->
-		<code>Load...</code> from the menu bar at the top of the window.</p> 
+		<code>Load...</code> from the menu bar at the top of the window.</p>
+		
+	<h3 id="sec-separation">3. Voice Splitting</h3>
+	
+	  <h4 id="subsec-params">3.1. Setting the Parameters</h4>
+	  
+	  	<p>You can set the voice splitting parameters by selecting <code>File</code>-><code>Preferences...</code>, which causes
+	  	the following popup window to appear.</p>
+	  
+	  	<img src="images/parameters.png" alt="parameter popup">
+	  
+	  	<p>Here, any of the 6 parameters can be changed manually using the text fields (any illegal arguments will be reset to
+	  	their original value), or the default settings can be reloaded with the <code>Default</code> button. Parameter settings
+	  	will be saved by exiting with the <code>OK</code> button.</p>
+	  	
+	  <h4 id="subsec-splitting">3.2. Voice Splitting</h4>
+	  
+		<p>Voice splitting can be performed on any loaded MIDI data by clicking the <code>Separate Voices</code> button at the
+		bottom of the window. Once the separation has been completed, the notes' borders will be color coded into the voices
+		to which they've been assigned, the <code>Separate Voices</code> button's text will change to <code>Undo Voice Separation</code>
+		(and can now be used to undo the separation), and a popup will appear displaying the F1-measure of the resulting split.</p>
+		
+		<p>NOTE: If this value seems unusually low, you may be using MIDI files which use tracks rather than channels (or vice versa)
+		as discussed in <a href="#sec-loading">section 2</a> above.</p>
 
     </section>
 
