@@ -243,11 +243,13 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 
 	/**
-	 * Return whether the given Object is equal to this one, which is only the case
-	 * when the given Object is a MidiNote, and all of its fields are equal to this one's.
+	 * Compare the given MidiNote to this one and return their difference. MidiNotes are ordered
+	 * first by their {@link #onsetTick}, followed by their {@link #offsetTick}, {@link #pitch},
+	 * {@link #velocity}, {@link #correctVoice}, and {@link #guessedVoice} respectively.
 	 * 
-	 * @param o The object we are checking for equality.
-	 * @return True if the given Object is equal to this one. False otherwise.
+	 * @param o The MidiNote we are comparing to.
+	 * @return A positive number if this MidiNote should come first, negative if the given one
+	 * should come first, or 0 if they are equal.
 	 */
 	@Override
 	public int compareTo(MidiNote o) {
