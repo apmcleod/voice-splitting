@@ -14,8 +14,13 @@ import voicesplitting.utils.MidiNote;
 /**
  * A <code>NoteListGenerator</code> parses Note On and Note Off events and generates a List of
  * the {@link voicesplitting.utils.MidiNote}s present in any given song. 
+ * <p>
+ * The {@link #getIncomingLists()} method should be used to generate the input for the
+ * {@link voicesplitting.generic.MidiModel#handleIncoming(List)} method.
  * 
  * @author Andrew McLeod - 11 Feb, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class NoteListGenerator implements NoteEventParser {
 	/**
@@ -36,7 +41,7 @@ public class NoteListGenerator implements NoteEventParser {
 	/**
 	 * Creates a new NoteListGenerator with the given TimeTracker.
 	 * 
-	 * @param timeTracker
+	 * @param timeTracker {@link #timeTracker}
 	 */
 	public NoteListGenerator(TimeTracker timeTracker) {
 		activeNotes = new LinkedList<MidiNote>();

@@ -23,9 +23,15 @@ import voicesplitting.utils.MidiNote;
 
 /**
  * A <code>MidiWriter</code> is able to take in {@link MidiNote}s and a {@link TimeTracker},
- * and write them out to a valid Midi File.
+ * and write them out to a valid MIDI file.
+ * <p>
+ * The generated MIDI file will separate the notes into voices by both track and channel.
+ * This can be used to fix MIDI files which don't do this by reading them (with the correct
+ * useChannel setting) and then writing the data back out to a new (or the same) file.
  * 
  * @author Andrew McLeod - 28 July, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class MidiWriter {
 	/**
@@ -34,7 +40,7 @@ public class MidiWriter {
 	private File outFile;
 	
 	/**
-	 * The TimeTracker for this Midi data.
+	 * The TimeTracker with the timing information for this Midi data.
 	 */
 	private TimeTracker timeTracker;
 	
