@@ -15,6 +15,8 @@ import voicesplitting.voice.VoiceSplittingModelState;
  * cumulative probability so far.
  * 
  * @author Andrew McLeod - 7 April, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class HmmVoiceSplittingModelState extends VoiceSplittingModelState implements Comparable<HmmVoiceSplittingModelState> {
 

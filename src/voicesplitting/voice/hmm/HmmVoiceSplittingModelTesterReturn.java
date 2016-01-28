@@ -1,10 +1,15 @@
 package voicesplitting.voice.hmm;
 
 /**
- * The return object for a {@link HmmVoiceSplittingModelTester} thread. This is used because we need
- * both the parameters and their accuracy, yet a Callble can only return 1 value.
+ * An <code>HmmVoiceSplittingModelTesterReturn</code> is the return object for a
+ * {@link HmmVoiceSplittingModelTester} thread.
+ * <p>
+ * This is used because we need both the parameters and their accuracy, yet a Callable can
+ * only return 1 object.
  * 
  * @author Andrew McLeod - 14 April, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class HmmVoiceSplittingModelTesterReturn {
 	/**
@@ -28,7 +33,8 @@ public class HmmVoiceSplittingModelTesterReturn {
 	private double recall;
 	
 	/**
-	 * Create a new empty Return result.
+	 * Create a new empty Return result with null {@link #parameters}, and where every value is set to
+	 * {@link Double#NEGATIVE_INFINITY}.
 	 */
 	public HmmVoiceSplittingModelTesterReturn() {
 		this(null, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
@@ -134,6 +140,13 @@ public class HmmVoiceSplittingModelTesterReturn {
 		recall = rec;
 	}
 	
+	/**
+	 * Get the String representation of this object, which is in the following format:
+	 * <p>
+	 * <code>{@link #parameters} = V={@link #voiceConsistency} P={@link #precision} R={@link #recall} F1={@link #getF1()}</code>
+	 * 
+	 * @return The String representation of this HmmVoiceSplittingModelTesterReturn object.
+	 */
 	@Override
 	public String toString() {
 		return parameters + " = V=" + voiceConsistency + " P=" + precision + " R=" + recall + " F1=" + getF1();

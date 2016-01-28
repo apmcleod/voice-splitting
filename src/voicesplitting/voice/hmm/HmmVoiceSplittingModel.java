@@ -12,6 +12,8 @@ import voicesplitting.voice.VoiceSplittingModel;
  * hmm algorithm.
  * 
  * @author Andrew McLeod - 7 April, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class HmmVoiceSplittingModel extends VoiceSplittingModel {
 	
