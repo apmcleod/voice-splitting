@@ -6,15 +6,16 @@ import java.util.TreeSet;
 import voicesplitting.utils.MidiNote;
 
 /**
- * A <code>MidiModelState</code> represents the state of any of our {@link MidiModel}s.
- * Each state has a score, accessible by the {@link #getScore()} method, and their
- * natural ordering is based on this score.
+ * A <code>MidiModelState</code> represents the state of any {@link MidiModel}.
  * <p>
- * Anyone wishing to create a new type of Midi Model (besides a voice splitter) should
+ * Each state has a score, accessible by the {@link #getScore()} method, and their
+ * natural ordering should be based on this score.
+ * <p>
+ * Anyone wishing to create a new type of MIDI Model (besides a voice splitter) should
  * extend this class to another abstract class defining that type of model's state, as
  * was done in {@link voicesplitting.voice.VoiceSplittingModelState}.
  * <p>
- * IMPORTANT: The correct functionality of MidiModelStates is dependent on any non-abstract
+ * <b>IMPORTANT</b>: The correct functionality of a MidiModelState is dependent on any non-abstract
  * subclass implementing the <code>Comparable</code> interface, ordering more likely
  * MidiModelStates more highly. This is due to use of java's <code>TreeSet</code> object,
  * which sorts based on the <code>compareTo</code> method of each object. Most likely,
@@ -22,12 +23,14 @@ import voicesplitting.utils.MidiNote;
  * other fields to break ties as needed.
  * 
  * @author Andrew McLeod - 4 Sept, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class MidiModelState {
 
 	/**
 	 * Get the score of this MidiModelState. In general, a higher score reflects
-	 * that a State is more likely given our prior knowledge.
+	 * that a State is more likely given our prior and observed knowledge.
 	 * <p>
 	 * In almost every case, the natural ordering of MidiModelStates should be based on
 	 * this score value.
@@ -48,7 +51,8 @@ public abstract class MidiModelState {
 	 * {@link MidiModel#handleIncoming(List)} method.
 	 * 
 	 * @param notes A List of the MidiNotes on which we need to transition.
-	 * @return A TreeSet of MidiModelStates which we've transitioned into.
+	 * @return A TreeSet of MidiModelStates which we've transitioned into. The new MidiModelStates
+	 * should not hold any common mutable objects, since they may modify them in the future.
 	 */
 	public abstract TreeSet<? extends MidiModelState> handleIncoming(List<MidiNote> notes);
 }
