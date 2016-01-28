@@ -7,7 +7,7 @@
  * MIDI ticks and time in seconds.
  *
  * @author Andrew McLeod - 28 Jan, 2016
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 package voicesplitting.time;

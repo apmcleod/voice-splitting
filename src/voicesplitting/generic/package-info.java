@@ -7,7 +7,7 @@
  * MIDI models which do perform voice separation should implement those classes directly.
  *
  * @author Andrew McLeod - 28 Jan, 2016
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 package voicesplitting.generic;
