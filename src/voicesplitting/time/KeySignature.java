@@ -5,6 +5,8 @@ package voicesplitting.time;
  * number of sharps in its signature), and whether it is major or minor.
  * 
  * @author Andrew McLeod - 11 Feb, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class KeySignature {
 	/**
@@ -73,9 +75,15 @@ public class KeySignature {
 		return major;
 	}
 	
+	/**
+	 * Get the String representation of this object, which is {@link #numSharps}, followed
+	 * by an <code>m</code> if the key is minor.  
+	 * 
+	 * @return The String representation of this KeySignature object.
+	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(3);
+		StringBuilder sb = new StringBuilder(4);
 		sb.append(numSharps);
 		
 		if (!isMajor()) {
@@ -85,11 +93,24 @@ public class KeySignature {
 		return sb.toString();
 	}
 	
+	/**
+	 * Get the hash code of this KeySignature object.
+	 * 
+	 * @return The hash code of this KeySignature object.
+	 */
 	@Override
 	public int hashCode() {
 		return getPositiveOffsetFromC() * (isMajor() ? -1 : 1);
 	}
 	
+	/**
+	 * Return whether the given Object is equal to this one, which is only the case
+	 * when the given Object is a KeySignature, and its {@link #numSharps} and {@link #major}
+	 * fields are equal to this one's.
+	 * 
+	 * @param other The object we are checking for equality.
+	 * @return True if the given Object is equal to this one. False otherwise.
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof KeySignature)) {
