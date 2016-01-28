@@ -1,17 +1,16 @@
 package voicesplitting.utils;
 
 /**
- * A <code>MidiNote</code> represents a single instance of a played midi note. It contains
- * information on the note's pitch, onset, offset, and velocity, as well as which MidiChord
- * it is assigned to.
+ * A <code>MidiNote</code> represents a single instance of a played MIDI note. It contains
+ * information on the note's pitch, onset, offset, and velocity, as well as its gold standard
+ * voice and its guessed voice.
  * <p>
- * MidiNotes are Comparable, and their natural ordering is determined strictly by each note's
- * {@link #onsetTime}. That means that the {@link #compareTo(MidiNote)} method will return 0
- * if two notes are compared which have the same onset time. For this reason, MidiNotes should
- * not be used in any SortedSets, since they test for equality based soleley on the compareTo
- * method, and will therefore not be able to hold multiple notes with the same onset time.
+ * MidiNotes are Comparable, and their natural ordering is determined first by each note's
+ * {@link #onsetTime}.
  * 
  * @author Andrew McLeod - 23 October, 2014
+ * @version 1.0
+ * @since 1.0
  */
 public class MidiNote implements Comparable<MidiNote> {
 	
@@ -23,12 +22,12 @@ public class MidiNote implements Comparable<MidiNote> {
 	/**
 	 * The onset time of this note, measured in microseconds.
 	 */
-	private long onsetTime;
+	private final long onsetTime;
 	
 	/**
 	 * The onset tick of this note.
 	 */
-	private long onsetTick;
+	private final long onsetTick;
 	
 	/**
 	 * The offset time of this note, measured in microseconds, or 0 if it is still active.
@@ -43,12 +42,12 @@ public class MidiNote implements Comparable<MidiNote> {
 	/**
 	 * The velocity of this note.
 	 */
-	private int velocity;
+	private final int velocity;
 	
 	/**
 	 * The key number of this note. For piano, it should be on the range 21 to 108 inclusive.
 	 */
-	private int pitch;
+	private final int pitch;
 
 	/**
 	 * The index of the guessed voice of this note.
@@ -77,17 +76,6 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 	
 	/**
-	 * Move this note's onset to the given location.
-	 * 
-	 * @param onsetTime {@link #onsetTime}
-	 * @param onsetTick {@link #onsetTick}
-	 */
-	public void setOnset(long onsetTime, long onsetTick) {
-		this.onsetTime = onsetTime;
-		this.onsetTick = onsetTick;
-	}
-	
-	/**
 	 * Move this note's offset to the given location.
 	 * 
 	 * @param offsetTime {@link #offsetTime}
@@ -99,7 +87,7 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 	
 	/**
-	 * Returns whether this note is active (still on) or not. A note will be active
+	 * Returns whether this note is active (still on) or not.
 	 * 
 	 * @return True if this note is active. False otherwise.
 	 */
@@ -118,7 +106,7 @@ public class MidiNote implements Comparable<MidiNote> {
 	}
 
 	/**
-	 * Return whether this note overlaps another MidiNote in time.
+	 * Return whether this note overlaps another MidiNote in time and pitch.
 	 * 
 	 * @param other The note we want to check for overlap. This can be null, in which case
 	 * we will return false.
@@ -129,9 +117,15 @@ public class MidiNote implements Comparable<MidiNote> {
 			return false;
 		}
 		
-		if (onsetTick < other.getOffsetTick() && offsetTick > other.getOnsetTick()) {
-			// We start before the other finishes, and finish after it starts.
-			return true;
+		if (pitch == other.pitch) {
+			if (onsetTick < other.offsetTick && offsetTick > other.onsetTick) {
+				// We start before the other finishes, and finish after it starts.
+				return true;
+				
+			} else if (other.onsetTick < onsetTick && other.offsetTick > offsetTick) {
+				//Vice versa
+				return true;
+			}
 		}
 
 		return false;
@@ -236,11 +230,25 @@ public class MidiNote implements Comparable<MidiNote> {
 		return guessedVoice;
 	}
 
+	/**
+	 * Get the String representation of this object, which is in the following format:
+	 * <p>
+	 * <code>(K:{@link #pitch}  V:{@link #velocity}  [{@link #onsetTick}-{@link #offsetTick}] {@link #correctVoice})</code>
+	 * 
+	 * @return The String representation of this KeySignature object.
+	 */
 	@Override
 	public String toString() {
 		return String.format("(K:%d  V:%d  [%d-%d] %d)", pitch, velocity, onsetTick, offsetTick, correctVoice);
 	}
 
+	/**
+	 * Return whether the given Object is equal to this one, which is only the case
+	 * when the given Object is a MidiNote, and all of its fields are equal to this one's.
+	 * 
+	 * @param o The object we are checking for equality.
+	 * @return True if the given Object is equal to this one. False otherwise.
+	 */
 	@Override
 	public int compareTo(MidiNote o) {
 		if (o == null) {
