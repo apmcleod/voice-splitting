@@ -26,8 +26,13 @@ import voicesplitting.utils.MidiNote;
 /**
  * A <code>NoteDisplayer</code> is the JPanel that is able to display {@link MidiNote}s
  * graphically.
+ * <p>
+ * It handles voice solos, note highlights, and note right click actions from the
+ * {@link MidiNoteGUIPopupMenu} class.
  * 
  * @author Andrew McLeod - 17 June, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class NoteDisplayer extends JPanel {
 
@@ -50,18 +55,18 @@ public class NoteDisplayer extends JPanel {
 	
 	/**
 	 * The horizontal scale of this GUI object. Note times will be divided by this amount to get layout
-	 * location.
+	 * location. Default is 10000.
 	 */
 	private int horizontalScale;
 	
 	/**
 	 * The vertical scale of this GUI object. Note pitches will be multiplied by this amount to get layout
-	 * location.
+	 * location. Default is 10.
 	 */
 	private int verticalScale;
 	
 	/**
-	 * The last note offset in the currently loaded MIDI.
+	 * The offset tick of the last {@link MidiNote} in the currently loaded MIDI.
 	 */
 	private long lastOffset = 0;
 	
@@ -86,7 +91,8 @@ public class NoteDisplayer extends JPanel {
 	private Set<Integer> soloedChannels;
 	
 	/**
-	 * Create a new default NoteDisplayer.
+	 * Create a new default NoteDisplayer with {@link #horizontalScale} 10000 and
+	 * {@link #verticalScale} 10.
 	 */
 	public NoteDisplayer() {
 		this(10000, 10);
@@ -135,6 +141,12 @@ public class NoteDisplayer extends JPanel {
 		});
 	}
 
+	/**
+	 * Paint this NoteDisplayer. This method is overridden in order to draw the lines for the
+	 * grid.
+	 * 
+	 * @param g The Graphics object which we will use to paint the NoteDisplayer.
+	 */
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -217,7 +229,7 @@ public class NoteDisplayer extends JPanel {
 	/**
 	 * Change the vertical scaling if we can (ie it doesn't get too far in or out).
 	 * 
-	 * @param direction negative number indicates zoom out. Positive means zoom in.
+	 * @param direction Zoom amount. A negative number indicates zoom out. Positive means zoom in.
 	 */
 	public void zoomVertical(int direction) {
 		int priorLocation = ((JScrollPane) getParent().getParent()).getVerticalScrollBar().getValue();
@@ -245,7 +257,7 @@ public class NoteDisplayer extends JPanel {
 	/**
 	 * Change the horizontal scaling if we can (ie it doesn't get too far in or out).
 	 * 
-	 * @param direction negative number indicates zoom out. Positive means zoom in.
+	 * @param direction Zoom amount. A negative number indicates zoom out. Positive means zoom in.
 	 */
 	public void zoomHorizontal(int direction) {
 		int priorLocation = ((JScrollPane) getParent().getParent()).getHorizontalScrollBar().getValue();
@@ -331,7 +343,7 @@ public class NoteDisplayer extends JPanel {
 	}
 	
 	/**
-	 * Set a new vertical and horizontal scale, and refresh if thevalues changed.
+	 * Set a new vertical and horizontal scale, and refresh if the values changed.
 	 * 
 	 * @param horizontal {@link #horizontalScale}
 	 * @param vertical {@link #verticalScale}
@@ -600,7 +612,7 @@ public class NoteDisplayer extends JPanel {
 	}
 
 	/**
-	 * Clear all soloed channels. That is, make all channels visible.
+	 * Clear all soloed channels. That is, make all notes visible.
 	 */
 	public void clearAllSolos() {
 		if (!soloedChannels.isEmpty()) {

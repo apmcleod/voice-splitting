@@ -10,11 +10,14 @@ import java.awt.event.MouseEvent;
  * does not need a unique listener.
  * 
  * @author Andrew McLeod - 28 July, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class MidiNoteGUIMouseListener extends MouseAdapter {
 
 	/**
-	 * A static instance of a MidiNoteGUIMouseListener object.
+	 * A static instance of a MidiNoteGUIMouseListener object, which should be used in
+	 * all cases.
 	 */
 	public static MidiNoteGUIMouseListener listener = new MidiNoteGUIMouseListener();
 	
@@ -23,6 +26,11 @@ public class MidiNoteGUIMouseListener extends MouseAdapter {
 	 */
 	private MidiNoteGUIMouseListener() {}
 	
+	/**
+	 * What to do when the mouse hovers over the object this listener is attached to.
+	 * Namely, create the tooltip text and attach it to the {@link MidiNoteGUI} object. This saves
+	 * the memory of having the tooltip stored for every single {@link MidiNoteGUI} at all times.
+	 */
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		MidiNoteGUI note = (MidiNoteGUI) e.getComponent();
@@ -30,6 +38,11 @@ public class MidiNoteGUIMouseListener extends MouseAdapter {
 		note.setToolTipText(note.generateToolTipText());
 	}
 	
+	/**
+	 * What to do when the mouse exits the object this listener is attached to.
+	 * Namely, reset the tooltip text of the {@link MidiNoteGUI} object to null. This saves
+	 * the memory of having the tooltip stored for every single {@link MidiNoteGUI} at all times.
+	 */
 	@Override
 	public void mouseExited(MouseEvent e) {
 		MidiNoteGUI note = (MidiNoteGUI) e.getComponent();
@@ -37,6 +50,9 @@ public class MidiNoteGUIMouseListener extends MouseAdapter {
 		note.setToolTipText(null);
 	}
 	
+	/**
+	 * What to do when the mouse is clicked on a MidiNoteGUI object to which this listener is attached.
+	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		switch (e.getButton()) {

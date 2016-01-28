@@ -17,9 +17,11 @@ import javax.swing.SwingWorker;
 import voicesplitting.parsing.MidiWriter;
 
 /**
- * A <code>BeatTrackingGUIMenuBar</code> is the MenuBar for the main BeatTracking GUI.
+ * A <code>VoiceSplittingGUIMenuBar</code> is the MenuBar for the main {@link VoiceSplittingGUI}.
  * 
  * @author Andrew McLeod - 28 July, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class VoiceSplittingGUIMenuBar extends JMenuBar {
 	/**

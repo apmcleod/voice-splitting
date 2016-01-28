@@ -13,9 +13,11 @@ import voicesplitting.utils.MidiNote;
 
 /**
  * A <code>BeatTrackingRunner</code> is the class which interfaces between a
- * {@link VoiceSplittingGUI} and the actual program logic.
+ * {@link VoiceSplittingGUI} and the program logic contained in other packages.
  * 
  * @author Andrew McLeod - 17 June, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class VoiceSplittingRunner {
 

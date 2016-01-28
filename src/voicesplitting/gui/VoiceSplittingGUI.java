@@ -37,10 +37,12 @@ import voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters;
 import voicesplitting.voice.hmm.HmmVoiceSplittingModelTester;
 
 /**
- * The <code>VoiceSplittingGUI</code> is the class which creates the gui for the beat tracking project.
- * This {@link #main(String[])} method should be run if you want to use the gui.
+ * The <code>VoiceSplittingGUI</code> is the main controller for the GUI, and contains
+ * the {@link #main(String[])} method which should be run to load the GUI.
  * 
  * @author Andrew McLeod - 17 June, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class VoiceSplittingGUI extends JFrame {
 	/**
@@ -50,12 +52,20 @@ public class VoiceSplittingGUI extends JFrame {
 	
 	/**
 	 * Field to tell whether we are using a gui or not.
-	 * This will be used to call Thread.sleep(1) to check if a Worker has been cancelled.
+	 * <p>
+	 * This will be used in the model's intensive loops to decide whether to call Thread.sleep(1)
+	 * to check if a Worker has been cancelled, as this check is only needed if we are running from
+	 * a GUI.
+	 * <p>
+	 * By default this value is <code>false</code>, but the {@link #main(String[])} method
+	 * sets it to true before loading the GUI.
 	 */
 	public static boolean usingGui = false;
 
 	/**
-	 * @param args The command line arguments
+	 * Set {@link #usingGui} to <code>true</code> and load the main voice splitting GUI.
+	 * 
+	 * @param args Command line arguments, none of which are used or even read.
 	 */
 	public static void main(String[] args) {
 		usingGui = true;
@@ -68,7 +78,7 @@ public class VoiceSplittingGUI extends JFrame {
 	}
 	
 	/**
-	 * The label showing the currently loaded MIDI file.
+	 * The label showing the currently loaded MIDI file's name.
 	 */
 	private JLabel fileNameLabel;
 	
@@ -84,7 +94,7 @@ public class VoiceSplittingGUI extends JFrame {
 	private JButton separateButton;
 	
 	/**
-	 * The JPanel used to display loaded notes.
+	 * The JPanel used to display loaded {@link MidiNoteGUI} objects.
 	 */
 	private NoteDisplayer noteDisplayer;
 	
@@ -94,28 +104,30 @@ public class VoiceSplittingGUI extends JFrame {
 	private JScrollPane noteScroll;
 	
 	/**
-	 * The object used to run the non-GUI code.
+	 * The object used to interface between the GUI and the non-GUI code.
 	 */
 	private VoiceSplittingRunner runner;
 	
 	/**
-	 * The solo buttons.
+	 * An array containing all of the voice solo buttons.
 	 */
 	private JButton[] soloButtons;
 	
 	/**
-	 * The params to use for Voice Splitting.
+	 * The parameters to use for voice splitting.
 	 */
 	private HmmVoiceSplittingModelParameters params = new HmmVoiceSplittingModelParameters();
 	
 	/**
-	 * The currently running SwingWorker.
+	 * The currently running SwingWorker. This is saved to know whether to cancel an existing
+	 * action when a new one is executed through the {@link #executeSwingWorker(SwingWorker)}
+	 * method.
 	 */
 	@SuppressWarnings("rawtypes")
 	private SwingWorker currentWorker;
 	
 	/**
-	 * Create a new default GUI.
+	 * Create and load a new GUI.
 	 */
 	public VoiceSplittingGUI() {
 		initComponents();
@@ -204,7 +216,8 @@ public class VoiceSplittingGUI extends JFrame {
 	}
 	
 	/**
-	 * Initialize and return the main note chart panel.
+	 * Initialize and return the main note chart panel. This includes the zoom buttons as well as the
+	 * scroll panel containing the {@link NoteDisplayer}.
 	 * 
 	 * @return The main note chart Component.
 	 */
@@ -364,7 +377,7 @@ public class VoiceSplittingGUI extends JFrame {
 	/**
 	 * Get the Component that is to make up the corners of the noteScroll.
 	 * 
-	 * @return Th Component for the noteScroll corners.
+	 * @return The Component for the noteScroll corners.
 	 */
 	public Component getCornerView() {
 		JLabel label = new JLabel();
@@ -380,7 +393,7 @@ public class VoiceSplittingGUI extends JFrame {
 	 * @throws InvalidMidiDataException If the file contained some invlaid MIDI data.
 	 */
 	public void loadNewFile() {
-JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser();
 		
 	    FileNameExtensionFilter filter = new FileNameExtensionFilter("MIDI Files", "mid", "midi");
 	    chooser.setFileFilter(filter);
@@ -504,7 +517,7 @@ JFileChooser chooser = new JFileChooser();
 	}
 	
 	/**
-	 * Display an error popup box based on the given exception.
+	 * Display an error popup box based on a given exception.
 	 * 
 	 * @param e The Exception that occurred.
 	 */
@@ -559,6 +572,7 @@ JFileChooser chooser = new JFileChooser();
 	
 	/**
 	 * Get whether we are supposed to be reading in data with the correct voice as channels or tracks.
+	 * This value is read in from the {@link #useChannelCheckBox}.
 	 * 
 	 * @return True if we should use channels. False to use tracks.
 	 */
