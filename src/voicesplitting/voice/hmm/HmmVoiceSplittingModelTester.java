@@ -96,7 +96,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * Running arguments:
 	 * <ul>
 	 * <li><code>-r</code> = Run a test (if used with <code>-t</code>, the tuned parameters instead of any given).</li>
-	 * <li>-t [STEPS]</code> = Tune to maximize F1-Measure, and optionally set the number of steps to make
+	 * <li><code>-t [STEPS]</code> = Tune to maximize F1-Measure, and optionally set the number of steps to make
      * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      * method rather than your own script because it runs the tests in parallel as much as possible to speed up
      * training.</li>
@@ -108,12 +108,12 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
      * If running with <code>-r</code>, the following arguments can be used to change the parameter settings from their default
      * values (those with which we tested the computer generated WTC fugues in the paper):
      * <ul>
-     * <li><code>-b INT</code> = Set the Beam Size parameter to the value INT (defualt = {@value HmmVoiceSplittingModelParameters#BEAM_SIZE_DEFAULT}).</li>
-     * <li><code>-n DOUBLE</code> = Set the New Voice Probability parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#NEW_VOICE_PROBABILITY_DEFAULT}).</li>
-     * <li><code>-h INT</code> = Set the Pitch History Length parameter to the value INT (defualt = {@value HmmVoiceSplittingModelParameters#PITCH_HISTORY_LENGTH}).</li>
-     * <li><code>-g DOUBLE</code> = Set the Gap Std Micros parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#GAP_STD_MICROS_DEFAULT}).</li>
-     * <li><code>-p DOUBLE</code> = Set the Pitch Std parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#PITCH_STD}).</li>
-     * <li><code>-m DOUBLE</code> = Set the Min Gap Score parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#MIN_GAP_SCORE_DEFAULT}).</li>
+     * <li><code>-b INT</code> = Set the Beam Size parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#BEAM_SIZE_DEFAULT}).</li>
+     * <li><code>-n DOUBLE</code> = Set the New Voice Probability parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#NEW_VOICE_PROBABILITY_DEFAULT}).</li>
+     * <li><code>-h INT</code> = Set the Pitch History Length parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_HISTORY_LENGTH_DEFAULT}).</li>
+     * <li><code>-g DOUBLE</code> = Set the Gap Std Micros parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#GAP_STD_MICROS_DEFAULT}).</li>
+     * <li><code>-p DOUBLE</code> = Set the Pitch Std parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_STD_DEFAULT}).</li>
+     * <li><code>-m DOUBLE</code> = Set the Min Gap Score parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#MIN_GAP_SCORE_DEFAULT}).</li>
      * </ul>
      * </li>
      * </ul>
@@ -515,7 +515,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * Running arguments:
 	 * <ul>
 	 * <li><code>-r</code> = Run a test (if used with <code>-t</code>, the tuned parameters instead of any given).</li>
-	 * <li>-t [STEPS]</code> = Tune to maximize F1-Measure, and optionally set the number of steps to make
+	 * <li><code>-t [STEPS]</code> = Tune to maximize F1-Measure, and optionally set the number of steps to make
      * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      * method rather than your own script because it runs the tests in parallel as much as possible to speed up
      * training.</li>
@@ -527,12 +527,12 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
      * If running with <code>-r</code>, the following arguments can be used to change the parameter settings from their default
      * values (those with which we tested the computer generated WTC fugues in the paper):
      * <ul>
-     * <li><code>-b INT</code> = Set the Beam Size parameter to the value INT (defualt = {@value HmmVoiceSplittingModelParameters#BEAM_SIZE_DEFAULT}).</li>
-     * <li><code>-n DOUBLE</code> = Set the New Voice Probability parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#NEW_VOICE_PROBABILITY_DEFAULT}).</li>
-     * <li><code>-h INT</code> = Set the Pitch History Length parameter to the value INT (defualt = {@value HmmVoiceSplittingModelParameters#PITCH_HISTORY_LENGTH}).</li>
-     * <li><code>-g DOUBLE</code> = Set the Gap Std Micros parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#GAP_STD_MICROS_DEFAULT}).</li>
-     * <li><code>-p DOUBLE</code> = Set the Pitch Std parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#PITCH_STD}).</li>
-     * <li><code>-m DOUBLE</code> = Set the Min Gap Score parameter to the value DOUBLE (defualt = {@value HmmVoiceSplittingModelParameters#MIN_GAP_SCORE_DEFAULT}).</li>
+     * <li><code>-b INT</code> = Set the Beam Size parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#BEAM_SIZE_DEFAULT}).</li>
+     * <li><code>-n DOUBLE</code> = Set the New Voice Probability parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#NEW_VOICE_PROBABILITY_DEFAULT}).</li>
+     * <li><code>-h INT</code> = Set the Pitch History Length parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_HISTORY_LENGTH_DEFAULT}).</li>
+     * <li><code>-g DOUBLE</code> = Set the Gap Std Micros parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#GAP_STD_MICROS_DEFAULT}).</li>
+     * <li><code>-p DOUBLE</code> = Set the Pitch Std parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_STD_DEFAULT}).</li>
+     * <li><code>-m DOUBLE</code> = Set the Min Gap Score parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#MIN_GAP_SCORE_DEFAULT}).</li>
      * </ul>
      * </li>
      * </ul>
@@ -581,8 +581,9 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	/**
 	 * Run the test on our List of {@link HmmVoiceSplittingModelParameters}, and return the best result.
 	 * 
-	 * @return A {@link VoiceSplittingTesterReturn} representing the best result found from our
+	 * @return A {@link HmmVoiceSplittingModelTesterReturn} representing the best result found from our
 	 * List of parameters.
+	 * @throws Exception If any exception occurs, most often an interrupt.
 	 */
 	@Override
 	public HmmVoiceSplittingModelTesterReturn call() throws Exception {
