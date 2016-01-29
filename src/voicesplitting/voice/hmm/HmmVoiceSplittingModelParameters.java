@@ -169,13 +169,13 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	}
 
 	/**
-	 * Compare the given HmmVoiceSPlittingModelParameters to this one and return their difference.
+	 * Compare the given HmmVoiceSplittingModelParameters to this one and return their difference.
 	 * They are ordered first by their {@link #BEAM_SIZE}, followed by their {@link #MIN_GAP_SCORE},
 	 * {@link #PITCH_STD}, {@link #GAP_STD_MICROS}, {@link #NEW_VOICE_PROBABILITY}, and
 	 * {@link #PITCH_HISTORY_LENGTH} respectively.
 	 * 
 	 * @param o The HmmVoiceSplittingModelParameters we are comparing to.
-	 * @return A positive number if this HmmVoiceSplittingParameters should come first, negative
+	 * @return A positive number if this HmmVoiceSplittingModelParameters should come first, negative
 	 * if the given one should come first, or 0 if they are equal.
 	 */
 	@Override
