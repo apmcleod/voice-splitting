@@ -6,9 +6,11 @@ import voicesplitting.utils.MidiNote;
 
 /**
  * A <code>NoteEventParser</code> is any class which can handle MIDI Note On and Note Off events.
- * These are normally passed to it by a {@link voicesplitting.parsing.EventParser}.
+ * These are normally passed to it by an {@link voicesplitting.parsing.EventParser}.
  * 
  * @author Andrew McLeod - 11 Feb, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public interface NoteEventParser {
 	/**

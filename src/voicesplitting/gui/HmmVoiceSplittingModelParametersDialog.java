@@ -23,10 +23,12 @@ import javax.swing.JTextField;
 import voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters;
 
 /**
- * A <code>VoiceSplittingParametersDialog</code> object creates and displays the gui dialog
+ * A <code>VoiceSplittingParametersDialog</code> object creates and displays the GUI dialog
  * which can be used to change the currently loaded {@link HmmVoiceSplittingModelParameters}.
  * 
  * @author Andrew McLeod - 4 August, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	/**
@@ -34,11 +36,34 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	 */
 	private static final long serialVersionUID = 8034043349191756712L;
 	
+	/**
+	 * The label text of the beam size text field. 
+	 */
 	private static final String BEAM_SIZE = "Beam size";
+	
+	/**
+	 * The label text of the new voice probability text field. 
+	 */
 	private static final String NEW_VOICE_PROBABILITY = "New voice prob";
+	
+	/**
+	 * The label text of the pitch history length text field. 
+	 */
 	private static final String PITCH_HISTORY_LENGTH = "Pitch history length";
+	
+	/**
+	 * The label text of the gap length standard deviation text field. 
+	 */
 	private static final String GAP_STD_MICROS = "Gap std micros";
+	
+	/**
+	 * The label text of the pitch standard deviation text field. 
+	 */
 	private static final String PITCH_STD = "Pitch std";
+	
+	/**
+	 * The label text of the minimum gap score text field. 
+	 */
 	private static final String MIN_GAP_SCORE = "Min gap score";
 	
 	/**
@@ -47,17 +72,17 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	private Map<String, JTextField> textFieldMap;
 
 	/**
-	 * The parameters that were set initially.
+	 * The parameters as they were set upon the popup of this dialog.
 	 */
 	private HmmVoiceSplittingModelParameters params;
 	
 	/**
-	 * The gui frame of this instance.
+	 * The GUI frame of this dialog.
 	 */
 	private VoiceSplittingGUI gui;
 	
 	/**
-	 * Create a new dialog based on the given gui frame.
+	 * Create a new dialog in the given gui frame.
 	 * 
 	 * @param gui {@link #gui}
 	 */
@@ -96,7 +121,7 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	}
 
 	/**
-	 * Create the buttons for using this dialog.
+	 * Create the Default, Cancel, and OK buttons for this dialog.
 	 * 
 	 * @return The Component containing the Buttons for this dialog.
 	 */
@@ -148,7 +173,7 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	/**
 	 * Get the parameters currently displayed in the dialog.
 	 * 
-	 * @return The parameters, loaded from the text areas.
+	 * @return The parameters, loaded from the text areas, or null if any of the values are invalid.
 	 */
 	protected HmmVoiceSplittingModelParameters loadDisplayedParameters() {
 		try {
@@ -167,7 +192,8 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	}
 
 	/**
-	 * Get the Setting component for an integer setting with the given key and values.
+	 * Get the setting Component for an integer setting with the given key and values. That
+	 * is, the Component containing the label and text field for the given parameter setting.
 	 * 
 	 * @param key The key for this setting, to be displayed as the label for the textbox.
 	 * @param value The current value for this setting.
@@ -178,7 +204,8 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	}
 
 	/**
-	 * Get the Setting component for a double setting with the given key and values.
+	 * Get the setting Component for a double setting with the given key and values. That
+	 * is, the Component containing the label and text field for the given parameter setting.
 	 * 
 	 * @param key The key for this setting, to be displayed as the label for the textbox.
 	 * @param value The current value for this setting.
@@ -189,7 +216,8 @@ public class HmmVoiceSplittingModelParametersDialog extends JDialog {
 	}
 	
 	/**
-	 * Get the Setting component for a setting with the given key and values.
+	 * Get the setting Component for a setting with the given key and values. That
+	 * is, the Component containing the label and text field for the given parameter setting.
 	 * 
 	 * @param key The key for this setting, to be displayed as the label for the textbox.
 	 * @param value The current value for this setting.

@@ -2,10 +2,12 @@ package voicesplitting.time;
 
 
 /**
- * A <code>TimeSignature</code> represents some MIDI data's beat structure (time signature).
+ * A <code>TimeSignature</code> represents some MIDI data's metrical structure (time signature).
  * Equality is based only on the numerator and denominator.
  * 
  * @author Andrew McLeod - 11 Feb, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class TimeSignature {
 
@@ -30,7 +32,7 @@ public class TimeSignature {
 	private final int notes32PerQuarter;
 	
 	/**
-	 * Create a new default TimeSignature (4/4 time)
+	 * Create a new default TimeSignature (4/4 time).
 	 */
 	public TimeSignature() {
 		this(new byte[] {4, 2, 24, 8});
@@ -103,6 +105,12 @@ public class TimeSignature {
 		return denominator;
 	}
 	
+	/**
+     * Get the String representation of this TimeSignature object, which is {@link #numerator} /
+     * {@link #denominator}.
+     * 
+     * @return The String representation of this TimeSignature object.
+     */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(4);
@@ -112,11 +120,24 @@ public class TimeSignature {
 		return sb.toString();
 	}
 	
+	/**
+     * Get the hash code of this TimeSignature object.
+     * 
+     * @return The hash code of this object.
+     */
 	@Override
 	public int hashCode() {
 		return getNumerator() + getDenominator();
 	}
 	
+	/**
+	 * Return whether the given Object is equal to this one, which is only the case
+	 * when the given Object is a TimeSignature, and its {@link #numerator} and {@link #denominator}
+	 * fields are equal to this one's.
+	 * 
+	 * @param other The object we are checking for equality.
+	 * @return True if the given Object is equal to this one. False otherwise.
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof TimeSignature)) {

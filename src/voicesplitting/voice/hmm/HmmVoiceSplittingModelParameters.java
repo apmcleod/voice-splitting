@@ -1,9 +1,14 @@
 package voicesplitting.voice.hmm;
 
 /**
- * The parameters to use for an {@link HmmVoiceSplittingModel}.
+ * An <code>HmmVoiceSplittingModelParameters</code> contains the parameters to use for
+ * an {@link HmmVoiceSplittingModel}.
+ * <p>
+ * All of the fields contained within are final.
  * 
  * @author Andrew McLeod - 13 April, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSplittingModelParameters> {
 	/**
@@ -92,17 +97,25 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	 * Create new params with default values. The default values referred to here are those found to be optimized
 	 * when tuning to test on the computer-generated WTC Fugues, as noted in the paper. Specifically:
 	 * <br>
-	 * {@link #BEAM_SIZE}<code> = 25</code>
-	 * {@link #NEW_VOICE_PROBABILITY}<code> = 5E-10</code>
-	 * {@link #PITCH_HISTORY_LENGTH}<code> = 11</code>
-	 * {@link #GAP_STD_MICROS}<code> = 224000</code>
-	 * {@link #PITCH_STD}<code> = 4</code>
-	 * {@link #MIN_GAP_SCORE}<code> = 7E-5</code>
+	 * {@link #BEAM_SIZE}<code> = {@value #BEAM_SIZE_DEFAULT}</code>
+	 * {@link #NEW_VOICE_PROBABILITY}<code> = {@value #NEW_VOICE_PROBABILITY_DEFAULT}</code>
+	 * {@link #PITCH_HISTORY_LENGTH}<code> = {@value #PITCH_HISTORY_LENGTH_DEFAULT}</code>
+	 * {@link #GAP_STD_MICROS}<code> = {@value #GAP_STD_MICROS_DEFAULT}</code>
+	 * {@link #PITCH_STD}<code> = {@value #PITCH_STD_DEFAULT}</code>
+	 * {@link #MIN_GAP_SCORE}<code> = {@value #MIN_GAP_SCORE_DEFAULT}</code>
 	 */
 	public HmmVoiceSplittingModelParameters() {
 		this(BEAM_SIZE_DEFAULT, NEW_VOICE_PROBABILITY_DEFAULT, PITCH_HISTORY_LENGTH_DEFAULT, GAP_STD_MICROS_DEFAULT, PITCH_STD_DEFAULT, MIN_GAP_SCORE_DEFAULT);
 	}
 	
+	/**
+	 * Return whether the given Object is equal to this one, which is only the case
+	 * when the given Object is an HmmVoiceSplittingModelParameters, and all of its
+	 * fields are equal to this one's.
+	 * 
+	 * @param other The object we are checking for equality.
+	 * @return True if the given Object is equal to this one. False otherwise.
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof HmmVoiceSplittingModelParameters)) {
@@ -119,6 +132,11 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 				&& MIN_GAP_SCORE == p.MIN_GAP_SCORE;		
 	}
 	
+	/**
+	 * Get the hash code of this HmmVoiceSplittingModelParameters object.
+	 * 
+	 * @return The hash code of this HmmVoiceSplittingModelParameters object.
+	 */
 	@Override
 	public int hashCode() {
 		return BEAM_SIZE +
@@ -129,6 +147,13 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 				Double.valueOf(MIN_GAP_SCORE).hashCode();
 	}
 	
+	/**
+	 * Get the String representation of this object, which is in the following format:
+	 * <p>
+	 * <code>({@link #BEAM_SIZE},{@link #NEW_VOICE_PROBABILITY},{@link #PITCH_HISTORY_LENGTH},{@link #GAP_STD_MICROS},{@link #PITCH_STD},{@link #MIN_GAP_SCORE})</code>
+	 * 
+	 * @return The String representation of this HmmVoiceSplittingModelParameters object.
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("(");
@@ -143,6 +168,16 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 		return sb.toString();
 	}
 
+	/**
+	 * Compare the given HmmVoiceSplittingModelParameters to this one and return their difference.
+	 * They are ordered first by their {@link #BEAM_SIZE}, followed by their {@link #MIN_GAP_SCORE},
+	 * {@link #PITCH_STD}, {@link #GAP_STD_MICROS}, {@link #NEW_VOICE_PROBABILITY}, and
+	 * {@link #PITCH_HISTORY_LENGTH} respectively.
+	 * 
+	 * @param o The HmmVoiceSplittingModelParameters we are comparing to.
+	 * @return A positive number if this HmmVoiceSplittingModelParameters should come first, negative
+	 * if the given one should come first, or 0 if they are equal.
+	 */
 	@Override
 	public int compareTo(HmmVoiceSplittingModelParameters o) {
 		if (o == null) {

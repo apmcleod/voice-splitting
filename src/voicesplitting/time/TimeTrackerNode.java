@@ -1,23 +1,38 @@
 package voicesplitting.time;
 
 /**
- * A <code>TimeTrackerNode</code> represents the state of a musical score at a given time. That is,
- * it represents a <{@link voicesplitting.time.TimeSignature},
- * {@link voicesplitting.time.Tempo}, {@link voicesplitting.time.KeySignature}>
- * triple, and contains information about the times at which that triple is contiguously valid.
+ * A <code>TimeTrackerNode</code> represents the state of a musical score at a given time, and is
+ * able to convert between MIDI ticks and seconds. That is, it represents a
+ * <{@link voicesplitting.time.TimeSignature}, {@link voicesplitting.time.Tempo},
+ * {@link voicesplitting.time.KeySignature}> triple, and contains information about the times at
+ * which that triple is valid.
+ * <p>
+ * All of the TimeTrackerNodes are kept track of by a single master {@link TimeTracker} object
+ * per song, which organizes them into a list and queries appropriately based on each one's
+ * valid times.
  * 
  * @author Andrew McLeod - 11 Feb, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class TimeTrackerNode {
 	/**
 	 * The start tick for this TimeTrackerNode. That is, the tick at which this ones triple becomes
 	 * valid.
+	 * <p>
+	 * <code>this.getTimeAtTick({@link #startTick}) == {@link #startTime}</code>
+	 * <p>
+	 * <code>this.getTickAtTime({@link #startTime}) == {@link #startTick}</code>
 	 */
 	private long startTick = 0L;
 	
 	/**
 	 * The start time for this TimeTrackerNode, measured in microseconds. That is, the time at which
 	 * this one's triple becomes valid.
+	 * <p>
+	 * <code>this.getTimeAtTick({@link #startTick}) == {@link #startTime}</code>
+	 * <p>
+	 * <code>this.getTickAtTime({@link #startTime}) == {@link #startTick}</code>
 	 */
 	private long startTime = 0L;
 	
@@ -114,7 +129,7 @@ public class TimeTrackerNode {
 	/**
 	 * Set the Tempo of this node.
 	 * 
-	 * @param tempo
+	 * @param tempo {@link #tempo}
 	 */
 	public void setTempo(Tempo tempo) {
 		this.tempo = tempo;
@@ -123,7 +138,7 @@ public class TimeTrackerNode {
 	/**
 	 * Set the TimeSignature of this node.
 	 * 
-	 * @param timeSignature
+	 * @param timeSignature {@link #timeSignature}
 	 */
 	public void setTimeSignature(TimeSignature timeSignature) {
 		this.timeSignature = timeSignature;
@@ -132,7 +147,7 @@ public class TimeTrackerNode {
 	/**
 	 * Set the KeySignature of this node.
 	 * 
-	 * @param keySignature
+	 * @param keySignature {@link #keySignature}
 	 */
 	public void setKeySignature(KeySignature keySignature) {
 		this.keySignature = keySignature;
@@ -165,6 +180,13 @@ public class TimeTrackerNode {
 		return keySignature;
 	}
 	
+	/**
+	 * Get the String representation of this TimeTrackerNode, which is its {@link #startTick},
+	 * {@link #startTime}, {@link #keySignature}, {@link #timeSignature}, and {@link #tempo},
+	 * all within braces.
+	 * 
+	 * @return The String representation of this TimeTrackerNode.
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{Tick=");

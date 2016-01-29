@@ -10,9 +10,12 @@ import javax.swing.SwingWorker;
 import voicesplitting.utils.MidiNote;
 
 /**
- * A <code>NoteDisplayerWorker</code> does the work of updating the note displayer GUI in the background.
+ * A <code>NoteDisplayerWorker</code> does the work of updating the {@link NoteDisplayer}
+ * GUI in the background.
  * 
  * @author Andrew McLeod - 20 June, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class NoteDisplayerWorker extends SwingWorker<NoteDisplayer, Void> {
 
@@ -32,10 +35,11 @@ public class NoteDisplayerWorker extends SwingWorker<NoteDisplayer, Void> {
 	private List<MidiNote> notes;
 	
 	/**
-	 * Create a new NoteDisplayerWorker with the given params.
+	 * Create a new NoteDisplayerWorker with the given fields.
 	 * 
 	 * @param scrollPane {@link #scrollPane}
 	 * @param gui {@link #gui}
+	 * @param notes {@link #notes}
 	 */
 	public NoteDisplayerWorker(JScrollPane scrollPane, VoiceSplittingGUI gui, List<MidiNote> notes) {
 		this.scrollPane = scrollPane;
@@ -43,6 +47,13 @@ public class NoteDisplayerWorker extends SwingWorker<NoteDisplayer, Void> {
 		this.notes = notes;
 	}
 	
+	/**
+	 * Do the main work of loading the {@link MidiNote}s into a new {@link NoteDisplayer}
+	 * and return it.
+	 * 
+	 * @return A new {@link NoteDisplayer} containing the newly loaded {@link #notes}, or the
+	 * original {@link NoteDisplayer} if this action is cancelled.
+	 */
 	@Override
 	protected NoteDisplayer doInBackground() {
 		NoteDisplayer old = gui.getNoteDisplayer();
@@ -68,6 +79,10 @@ public class NoteDisplayerWorker extends SwingWorker<NoteDisplayer, Void> {
 		return nd;
 	}
 
+	/**
+	 * Complete the loading of the new {@link NoteDisplayer}, or refresh the action buttons
+	 * if the action was cancelled.
+	 */
 	@Override
 	protected void done() {
 		if (isCancelled()) {

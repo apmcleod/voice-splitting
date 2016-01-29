@@ -5,8 +5,12 @@ import java.awt.Color;
 /**
  * The <code>GUIConstants</code> class holds constant values to be used for the GUI
  * layout.
+ * <p>
+ * There is no need for an object of this class to ever be instantiated.
  * 
  * @author Andrew McLeod - 18 June, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class GUIConstants {
 
@@ -31,16 +35,6 @@ public class GUIConstants {
 	public static final int HORIZONTAL_SCALE_MIN = 250;
 	
 	/**
-	 * String for the quantize button.
-	 */
-	public static final String QUANTIZE = "Quantize Notes";
-	
-	/**
-	 * String for the unquantize button.
-	 */
-	public static final String UNQUANTIZE = "Unquantize Notes";
-	
-	/**
 	 * String for the separate voices button.
 	 */
 	public static final String SEPARATE = "Separate Voices";
@@ -51,7 +45,7 @@ public class GUIConstants {
 	public static final String UNSEPARATE = "Undo Voice Separation";
 	
 	/**
-	 * The Colors to use for coloring the different voices of MidiNotes of each track.
+	 * The Colors to use for coloring {@link MidiNoteGUI}s based on voice.
 	 */
 	public static final Color[] COLORS = new Color[] {
 			Color.decode("#00FF00"),

@@ -12,6 +12,8 @@ import javax.sound.midi.MidiEvent;
  * a LinkedList of {@link TimeTrackerNode} objects.
  * 
  * @author Andrew McLeod - 23 October, 2014
+ * @version 1.0
+ * @since 1.0
  */
 public class TimeTracker {
 	/**
@@ -20,7 +22,7 @@ public class TimeTracker {
 	private double PPQ;
 	
 	/**
-	 * The LInkedList of TimeTrackerNodes of this TimeTracker, ordered by time.
+	 * The LInkedList of TimeTrackerNodes of this TimeTracker, ordered by start time.
 	 */
 	private final LinkedList<TimeTrackerNode> nodes;
 	
@@ -30,7 +32,8 @@ public class TimeTracker {
 	private long lastTick = 0;
     
 	/**
-	 * Create a new TimeTracker.
+	 * Create a new TimeTracker initially with a single {@link TimeTrackerNode} with default
+	 * settings.
 	 */
     public TimeTracker() {
     	nodes = new LinkedList<TimeTrackerNode>();
@@ -38,7 +41,7 @@ public class TimeTracker {
     }
     
     /**
-     * A TimeSignature event was detected. Deal with it.
+     * A {@link TimeSignature} event was detected. Deal with it.
      * 
      * @param event The event.
      * @param mm The message from the event.
@@ -53,7 +56,7 @@ public class TimeTracker {
     }
     
     /**
-     * A Tempo event was detected. Deal with it.
+     * A {@link Tempo} event was detected. Deal with it.
      * 
      * @param event The event.
      * @param mm The message from the event.
@@ -68,7 +71,7 @@ public class TimeTracker {
     }
     
     /**
-     * A KeySignature event was detected. Deal with it.
+     * A {@link KeySignature} event was detected. Deal with it.
      * 
      * @param event The event.
      * @param mm The message from the event.
@@ -93,7 +96,7 @@ public class TimeTracker {
     }
     
     /**
-     * Get the TimeTrackerNode which is valid at the given tick.
+     * Get the {@link TimeTrackerNode} which is valid at the given tick.
      * 
      * @param tick The tick.
      * @return The valid TimeTrackerNode.
@@ -191,20 +194,13 @@ public class TimeTracker {
     	return PPQ;
     }
 	
+    /**
+     * Get the String representation of this object, which is exactly {@link #nodes}.
+     * 
+     * @return The String representation of this object.
+     */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("[");
-		
-		ListIterator<TimeTrackerNode> iterator = nodes.listIterator();
-    	
-    	TimeTrackerNode node = iterator.next();
-		
-		while (iterator.hasNext()) {
-			sb.append(node.toString()).append(',');
-		}
-		
-		sb.deleteCharAt(sb.length() - 1);
-		sb.append(']');
-		return sb.toString();
+		return nodes.toString();
 	}
 }

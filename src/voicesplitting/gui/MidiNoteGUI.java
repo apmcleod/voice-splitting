@@ -14,6 +14,8 @@ import voicesplitting.utils.MidiNote;
  * A <code>MidiNoteGUI</code> object controls the GUI layout of a {@link MidiNote}.
  * 
  * @author Andrew McLeod - 17 June, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class MidiNoteGUI extends JLabel {
 
@@ -69,7 +71,8 @@ public class MidiNoteGUI extends JLabel {
 	}
 
 	/**
-	 * Set whether this note is highlighted or not.
+	 * Set whether this note is highlighted or not, and change the border of this note
+	 * appropriately.
 	 * 
 	 * @param highlight True to highlight this note. False otherwise.
 	 */
@@ -138,13 +141,16 @@ public class MidiNoteGUI extends JLabel {
 	}
 	
 	/**
-	 * Get the color for the given track track.
+	 * Get the color for the given voice index.
+	 * <p>
+	 * The color is loaded from the {@link GUIConstants#COLORS} array if the index is
+	 * less than its length, or set to black otherwise.
 	 * 
-	 * @param track The track number whose color we want.
-	 * @return The correct color.
+	 * @param index The index of the voice whose color we want.
+	 * @return The corresponding color.
 	 */
-	public static Color getColor(int track) {
-		return track < GUIConstants.COLORS.length ? GUIConstants.COLORS[track] : Color.BLACK;
+	public static Color getColor(int index) {
+		return index < GUIConstants.COLORS.length ? GUIConstants.COLORS[index] : Color.BLACK;
 	}
 	
 	/**

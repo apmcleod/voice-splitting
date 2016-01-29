@@ -12,6 +12,8 @@ import javax.swing.JPopupMenu;
  * {@link MidiNoteGUI} object. This also pops up as the right click on a {@link NoteDisplayer}.
  * 
  * @author Andrew McLeod - 28 July, 2015
+ * @version 1.0
+ * @since 1.0
  */
 public class MidiNoteGUIPopupMenu extends JPopupMenu {
 	/**
@@ -55,9 +57,9 @@ public class MidiNoteGUIPopupMenu extends JPopupMenu {
 	};
 
 	/**
-	 * Create a new popup menu based on the given NoteDisplayer.
+	 * Create a new popup menu in the given NoteDisplayer.
 	 * 
-	 * @param displayer The current NoteDisplayer.
+	 * @param displayer {@link #displayer}
 	 */
 	public MidiNoteGUIPopupMenu(NoteDisplayer displayer) {
 		this.displayer = displayer;

@@ -24,11 +24,14 @@ import voicesplitting.utils.MidiNote;
 /**
  * An <code>EventParser</code> handles the interfacing between this program and MIDI files.
  * It can read in MIDI events from a file with {@link #run()}, play the audio
- * of the currently loaded data with {@link #playAudio()}.
+ * of the currently loaded data with {@link #playAudio()}, and grab the gold standard
+ * voices of a song with {@link #getGoldStandardVoices()}.
  * <p>
  * One EventParser is required per song you wish to parse.
  * 
  * @author Andrew McLeod - 23 October, 2014
+ * @version 1.0
+ * @since 1.0
  */
 public class EventParser {
 	/**

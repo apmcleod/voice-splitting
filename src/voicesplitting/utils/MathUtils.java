@@ -1,9 +1,14 @@
 package voicesplitting.utils;
 
 /**
- * A static class of some utility functions that may need to used from multiple places.
+ * <code>MathUtils</code> is a static class of some utility functions that may need
+ * to be used from multiple places.
+ * <p>
+ * There is no reason for this class to ever be instantiated.
  * 
  * @author Andrew McLeod
+ * @version 1.0
+ * @since 1.0
  */
 public class MathUtils {
 	/**
@@ -13,8 +18,8 @@ public class MathUtils {
 	
 	/**
 	 * Evaluate a Gaussian window function with the given mean range and standard deviation. The formula is:
-	 * 
-	 * G(m1, m2, s) = e ^ [(-1 / 2) * ([m2 - m1] / s) ^ 2]
+	 * <p>
+	 * <code>G(m1, m2, s) = e ^ [(-1 / 2) * ([m2 - m1] / s) ^ 2]</code>
 	 * 
 	 * @param mean1 The low end of the mean range.
 	 * @param mean2 The high end of the mean range.
