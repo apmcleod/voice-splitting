@@ -55,7 +55,7 @@ public class Tempo {
 			int byteNumber = data.length - 1 - j;
 			
 			// Grab the lowest byte of the casted int, and shift it into the proper int byte location
-			tpq += (0x000000ff & (int) data[j]) << (8 * byteNumber);
+			tpq += (0x000000ff & data[j]) << (8 * byteNumber);
 		}
 		
 		return tpq;

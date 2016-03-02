@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiUnavailableException;
 
 import voicesplitting.generic.MidiModel;
 import voicesplitting.parsing.EventParser;
@@ -122,11 +121,10 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * 
 	 * @throws IOException If there was some I/O error in reading one of the Files.
 	 * @throws InvalidMidiDataException If one of the Files is not in proper MIDI format.
-	 * @throws MidiUnavailableException If Java's MIDI engine is not available.
 	 * @throws ExecutionException If there is some generic execution exception.
 	 * @throws InterruptedException If there is some interrupt received.
 	 */
-	public static void main(String[] args) throws InvalidMidiDataException, IOException, MidiUnavailableException, InterruptedException, ExecutionException {
+	public static void main(String[] args) throws InvalidMidiDataException, IOException, InterruptedException, ExecutionException {
 		boolean tune = false;
 		boolean run = false;
 		
@@ -281,13 +279,10 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * @param steps The number of steps to make in our grid search.
 	 * @return The best {@link HmmVoiceSplittingModelParameters} we found.
 	 * 
-	 * @throws IOException If there was some I/O error in reading one of the Files.
-	 * @throws InvalidMidiDataException If one of the Files is not in proper MIDI format.
-	 * @throws MidiUnavailableException If Java's MIDI engine is not available.
 	 * @throws ExecutionException If there is some generic execution exception.
 	 * @throws InterruptedException If there is some interrupt received.
 	 */
-	private static HmmVoiceSplittingModelParameters tune(int steps) throws InvalidMidiDataException, IOException, MidiUnavailableException, InterruptedException, ExecutionException {
+	private static HmmVoiceSplittingModelParameters tune(int steps) throws InterruptedException, ExecutionException {
 		// min/max values
 		double bsMin = 10, bsMax = 11;
 		double nvpMin = 1E-9, nvpMax = 1.0E-7;
@@ -358,12 +353,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * @param params The {@link HmmVoiceSplittingModelParameters} we want to use for this run.
 	 * @return The {@link HmmVoiceSplittingModelTesterReturn} object containing the parameters and the
 	 * achieved accuracy.
-	 * 
-	 * @throws IOException If there was some I/O error in reading one of the Files.
-	 * @throws InvalidMidiDataException If one of the Files is not in proper MIDI format.
-	 * @throws MidiUnavailableException If Java's MIDI engine is not available.
 	 */
-	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params) throws InvalidMidiDataException, IOException, MidiUnavailableException {
+	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params) {
 		double voiceAccSum = 0;
 		double voiceAccSongSum = 0;
 		
@@ -440,9 +431,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * @return A List of the {@link NoteListGenerator}s for each song.
 	 * @throws IOException If there was some I/O error in reading one of the Files.
 	 * @throws InvalidMidiDataException If one of the Files is not in proper MIDI format.
-	 * @throws MidiUnavailableException If Java's MIDI engine is not available.
 	 */
-	private static List<NoteListGenerator> getSongs(List<File> files) throws InvalidMidiDataException, IOException, MidiUnavailableException {
+	private static List<NoteListGenerator> getSongs(List<File> files) throws InvalidMidiDataException, IOException {
 		List<NoteListGenerator> songs = new ArrayList<NoteListGenerator>(files.size());
 		goldStandard = new ArrayList<List<List<MidiNote>>>(files.size());
 		
