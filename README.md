@@ -50,6 +50,7 @@ ARGS:
      within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      method rather than your own script because it runs the tests in parallel as much as possible to speed up
      training.
+   * `-e` = Extract and print the separated voices.
    * `-v` = Verbose (print out each song and each individual voice when running).
    * `-T` = Use tracks as correct voice (instead of channels). See [Troubleshooting](#troubleshooting)
      for more information.
@@ -64,6 +65,10 @@ values (those with which we tested the computer generated WTC fugues in the pape
    * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE (defualt = 7E-5).
    
 #### Output
+The `-e` output has the following format:
+
+> `songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity`
+
 The standard (non-verbose) `-r` output has the following format:
 
 > (`b`,`n`,`h`,`g`,`p`,`m`) = V=`Average Voice Consistency` P=`Precision` R=`Recall` F1=`F1-Measure`
