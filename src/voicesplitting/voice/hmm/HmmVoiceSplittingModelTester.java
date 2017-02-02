@@ -99,6 +99,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
      * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      * method rather than your own script because it runs the tests in parallel as much as possible to speed up
      * training.</li>
+     * <li><code>-e</code> = Extract the separated voices in the following format: songID noteID voiceID onsetTime(seconds) pitch velocity
      * <li><code>-v</code> = Verbose (print out each song and each individual voice when running).</li>
      * <li><code>-T</code> = Use tracks as correct voice (instead of channels).</li>
      * </ul>
@@ -127,6 +128,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	public static void main(String[] args) throws InvalidMidiDataException, IOException, InterruptedException, ExecutionException {
 		boolean tune = false;
 		boolean run = false;
+		boolean extract = false;
 		
 		// default values
 		int BS = HmmVoiceSplittingModelParameters.BEAM_SIZE_DEFAULT;
@@ -183,6 +185,11 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 					case 'r':
 						// Run
 						run = true;
+						break;
+						
+					case 'e':
+						// Extract
+						extract = true;
 						break;
 						
 					case 'b':
@@ -263,13 +270,16 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			}
 		}
 
-		if (run) {
-			HmmVoiceSplittingModelTesterReturn result = runTest(params);
-			System.out.println(result);
+		if (run || extract) {
+			HmmVoiceSplittingModelTesterReturn result = runTest(params, extract);
+			
+			if (run) {
+				System.out.println(result);
+			}
 		}
 		
-		if (!tune && !run) {
-			argumentError("Neither -t nor -r selected");
+		if (!tune && !run && !extract) {
+			argumentError("Neither -t, -r, nor -e selected");
 		}
 	}
 
@@ -351,10 +361,11 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * Run the {@link HmmVoiceSplittingModel} on the given songs.
 	 * 
 	 * @param params The {@link HmmVoiceSplittingModelParameters} we want to use for this run.
+	 * @param extract Whether to print out the extracted voices or not.
 	 * @return The {@link HmmVoiceSplittingModelTesterReturn} object containing the parameters and the
 	 * achieved accuracy.
 	 */
-	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params) {
+	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params, boolean extract) {
 		double voiceAccSum = 0;
 		double voiceAccSongSum = 0;
 		
@@ -379,6 +390,10 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			performInference(vs, nlg);
 
 			List<Voice> voices = vs.getHypotheses().first().getVoices();
+			
+			if (extract) {
+				System.out.println(getExtractString(voices, songIndex));
+			}
 			
 			int songTruePositives = 0;
 			int songFalsePositives = 0;
@@ -424,6 +439,22 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		return new HmmVoiceSplittingModelTesterReturn(params, voiceC, precision, recall);
 	}
 	
+	/**
+	 * Get the extracted voices as a String.
+	 * 
+	 * @param voices The voices returned from voice separation.
+	 * @param songId The index of the song. Used to disambiguate in case multiple songs are being split at once.
+	 * 
+	 * @return The print out of the extracted voices in the following format:
+	 *         songID noteID voiceID onsetTime(seconds) pitch velocity
+	 */
+	private static String getExtractString(List<Voice> voices, int songId) {
+		StringBuilder sb = new StringBuilder();
+		
+		// TODO Auto-generated method stub
+		return sb.toString();
+	}
+
 	/**
 	 * Generate a {@link NoteListGenerator}s for each given MIDI File and return them in a List.
 	 * 
@@ -509,6 +540,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
      * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      * method rather than your own script because it runs the tests in parallel as much as possible to speed up
      * training.</li>
+     * <li><code>-e</code> = Extract the separated voices in the following format: noteID voiceID onsetTime(seconds) pitch velocity
      * <li><code>-v</code> = Verbose (print out each song and each individual voice when running).</li>
      * <li><code>-T</code> = Use tracks as correct voice (instead of channels).</li>
      * </ul>
@@ -539,9 +571,10 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		sb.append("-t [STEPS] = Tune, and optionally set the number of steps to make within each parameter range");
 				sb.append(" to an Integer value (default = 5)\n");
 		sb.append("-r = Run test (if used with -t, we will use the tuned parameters instead of any given)\n");
+		sb.append("-e = Extract the separated voices in the following format: songID noteID voiceID onsetTime(seconds) pitch velocity\n");
 		sb.append("-v = Verbose (print out each song and each individual voice when running)\n");
 		sb.append("-T = Use tracks as correct voice (instead of channels)\n\n");
-		sb.append("Note that either -t or -r is required for the program to run.\n\n");
+		sb.append("Note that either -t, -r, or -e is required for the program to run.\n\n");
 		
 		sb.append("PARAMETERS (with -r):\n");
 		sb.append("-b INT = Set the Beam Size parameter to the value INT (defualt = " + HmmVoiceSplittingModelParameters.BEAM_SIZE_DEFAULT + ")\n");
@@ -580,7 +613,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		HmmVoiceSplittingModelTesterReturn best = new HmmVoiceSplittingModelTesterReturn();
 		
 		for (HmmVoiceSplittingModelParameters params : parametersList) {
-			HmmVoiceSplittingModelTesterReturn result = runTest(params);
+			HmmVoiceSplittingModelTesterReturn result = runTest(params, false);
 			
 			System.out.println(result);
 			
