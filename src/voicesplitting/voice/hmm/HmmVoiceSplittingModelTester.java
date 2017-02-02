@@ -99,7 +99,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
      * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      * method rather than your own script because it runs the tests in parallel as much as possible to speed up
      * training.</li>
-     * <li><code>-e</code> = Extract the separated voices in the following format: songID noteID voiceID onsetTime(seconds) pitch velocity
+     * <li><code>-e</code> = Extract the separated voices in the following format: songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity
      * <li><code>-v</code> = Verbose (print out each song and each individual voice when running).</li>
      * <li><code>-T</code> = Use tracks as correct voice (instead of channels).</li>
      * </ul>
@@ -446,13 +446,75 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * @param songId The index of the song. Used to disambiguate in case multiple songs are being split at once.
 	 * 
 	 * @return The print out of the extracted voices in the following format:
-	 *         songID noteID voiceID onsetTime(seconds) pitch velocity
+	 *         songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity
 	 */
 	private static String getExtractString(List<Voice> voices, int songId) {
 		StringBuilder sb = new StringBuilder();
 		
-		// TODO Auto-generated method stub
+		int[] voiceIndex = new int[voices.size()];
+		int noteId = 0;
+		
+		while (!finished(voices, voiceIndex)) {
+			int voiceId = getNextVoiceIndex(voices, voiceIndex);
+			MidiNote note = voices.get(voiceId).getNotes().get(voiceIndex[voiceId]++);
+			
+			sb.append(songId).append(' ');
+			sb.append(noteId++).append(' ');
+			sb.append(voiceId).append(' ');
+			sb.append(note.getOnsetTime()).append(' ');
+			sb.append(note.getOffsetTime()).append(' ');
+			sb.append(note.getPitch()).append(' ');
+			sb.append(note.getVelocity()).append('\n');
+		}
+		
+		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
+	}
+	
+	/**
+	 * Return if the voices are finished printing or not.
+	 * 
+	 * @param voices A List of the voices.
+	 * @param voiceIndex The current index of the note we need to print next for each voice.
+	 * @return True if there are no notes left to print. False otherwise.
+	 */
+	private static boolean finished(List<Voice> voices, int[] voiceIndex) {
+		for (int i = 0; i < voices.size(); i++) {
+			if (voices.get(i).getNumNotes() != voiceIndex[i]) {
+				// There is a note left in this voice
+				return false;
+			}
+		}
+		
+		// There are no notes left
+		return true;
+	}
+	
+	/**
+	 * Return the index of the voice containing the unprinted note with the lowest onset time.
+	 * 
+	 * @param voices A List of the voices.
+	 * @param voiceIndex The current index of the note we need to print next for each voice.
+	 * @return The voice containing the unprinted note with the lowest onset time.
+	 */
+	private static int getNextVoiceIndex(List<Voice> voices, int[] voiceIndex) {
+		int index = -1;
+		long onsetTime = -1L;
+		
+		for (int i = 0; i < voices.size(); i++) {
+			if (voices.get(i).getNumNotes() != voiceIndex[i]) {
+				// There is a note left in this voice
+				MidiNote note = voices.get(i).getNotes().get(voiceIndex[i]);
+				
+				if (index == -1 || note.getOnsetTime() < onsetTime) {
+					// This is the first found note or it occurs before the one we've found already
+					index = i;
+					onsetTime = note.getOnsetTime();
+				}
+			}
+		}
+		
+		return index;
 	}
 
 	/**
@@ -540,7 +602,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
      * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      * method rather than your own script because it runs the tests in parallel as much as possible to speed up
      * training.</li>
-     * <li><code>-e</code> = Extract the separated voices in the following format: noteID voiceID onsetTime(seconds) pitch velocity
+     * <li><code>-e</code> = Extract the separated voices in the following format: noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity
      * <li><code>-v</code> = Verbose (print out each song and each individual voice when running).</li>
      * <li><code>-T</code> = Use tracks as correct voice (instead of channels).</li>
      * </ul>
@@ -571,7 +633,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		sb.append("-t [STEPS] = Tune, and optionally set the number of steps to make within each parameter range");
 				sb.append(" to an Integer value (default = 5)\n");
 		sb.append("-r = Run test (if used with -t, we will use the tuned parameters instead of any given)\n");
-		sb.append("-e = Extract the separated voices in the following format: songID noteID voiceID onsetTime(seconds) pitch velocity\n");
+		sb.append("-e = Extract the separated voices in the following format: songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity\n");
 		sb.append("-v = Verbose (print out each song and each individual voice when running)\n");
 		sb.append("-T = Use tracks as correct voice (instead of channels)\n\n");
 		sb.append("Note that either -t, -r, or -e is required for the program to run.\n\n");
