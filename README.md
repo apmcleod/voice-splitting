@@ -12,7 +12,7 @@ voices divided by both channel and track.
 You are free to use this software as is allowed by the [MIT License](https://github.com/apmcleod/voice-splitting/blob/master/License).
 I only ask that you please cite it as my work where appropriate, including
 the paper on my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html#VoiceSeparation)
-which has been accepted to be published in the Journal of New Music Research.
+which has been published in the Journal of New Music Research.
 
 ## Documentation
 This document contains some basic code examples and a general overview of how to use
@@ -124,7 +124,7 @@ Please let me know if you are interested in using my work. If you run into any p
 using it, extending it, or you'd like to see me add any additional features, please let me know either by
 email or by submitting an issue on github. Any and all questions are always welcome.
 
-There is a paper which has been accepted to be published in the Journal of New Music Research available on
+There is a paper which has been published in the Journal of New Music Research available on
 my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html#VoiceSeparation) with further documentation.
 Please cite this if you use my code or the paper.
 
