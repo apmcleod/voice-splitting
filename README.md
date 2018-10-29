@@ -1,3 +1,18 @@
+
+This is the code and data from my 2016 Journal of New Music Research paper. If you use it, please cite it:
+
+```
+@article{McLeod:16,
+  author  = {McLeod, Andrew and Steedman, Mark},
+  title   = {HMM-Based Voice Separation of MIDI Performance},
+  journal = {Journal of New Music Research},
+  year    = {2016},
+  volume  = {45},
+  number  = {1},
+  pages   = {17--26}
+}
+```
+
 # Voice Splitting
 The goal of this project is to have a Java program which is able to split MIDI performance
 data into monophonic voices.
