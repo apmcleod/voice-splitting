@@ -59,25 +59,29 @@ files. Any directories listed will be searched recursively for all files, and if
 found are not in MIDI format, an exception will be thrown.
 
 ARGS:
- * Running arguments:
+ One of these is required:
    * `-r` = Run a test (if used with -t, we will use the tuned parameters instead of any given).
    * `-t [STEPS]` = Tune to maximize F1-Measure, and optionally set the number of steps to make
      within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
      method rather than your own script because it runs the tests in parallel as much as possible to speed up
      training.
    * `-e` = Extract and print the separated voices.
+   * `-w EXT` = Write the separated voices out to a new MIDI with ".EXT" added to the end of the filename.
+  
+ Optional arguments:
    * `-v` = Verbose (print out each song and each individual voice when running).
    * `-T` = Use tracks as correct voice (instead of channels). See [Troubleshooting](#troubleshooting)
      for more information.
      
-If running with `-r`, the following arguments can be used to change the parameter settings from their default
+If running with `-r`, `-e`, or `-w`, the following arguments can be used to change the parameter settings from their default
 values (those with which we tested the computer generated WTC fugues in the paper):
-   * `-b INT` = Set the Beam Size parameter to the value INT (defualt = 25).
-   * `-n DOUBLE` = Set the New Voice Probability parameter to the value DOUBLE (defualt = 5E-10).
-   * `-h INT` = Set the Pitch History Length parameter to the value INT (defualt = 11).
-   * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE (defualt = 224000).
-   * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE (defualt = 4).
-   * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE (defualt = 7E-5).
+   * `-l` = Set the parameters to those best for live performance.
+   * `-b INT` = Set the Beam Size parameter to the value INT.
+   * `-n DOUBLE` = Set the New Voice Probability parameter to the value DOUBLE.
+   * `-h INT` = Set the Pitch History Length parameter to the value INT.
+   * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE.
+   * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE.
+   * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE.
    
 #### Output
 The `-e` output has the following format:
