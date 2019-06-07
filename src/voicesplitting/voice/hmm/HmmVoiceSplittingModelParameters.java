@@ -19,7 +19,7 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	/**
 	 * The default value for {@link #MIN_GAP_SCORE}.
 	 */
-	public static final double MIN_GAP_SCORE_DEFAULT = 7E-5;
+	public static final double MIN_GAP_SCORE_DEFAULT = 8E-4;
 	
 	/**
 	 * The standard deviation to use for the Gaussian distribution used to calculate the
@@ -42,7 +42,7 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	/**
 	 * The default value for {@link #GAP_STD_MICROS}.
 	 */
-	public static final double GAP_STD_MICROS_DEFAULT = 224000;
+	public static final double GAP_STD_MICROS_DEFAULT = 127000;
 	
 	/**
 	 * The number of chords back we want to look in order to determine the weighted pitch.
@@ -52,7 +52,7 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	/**
 	 * The default value for {@link #PITCH_HISTORY_LENGTH}
 	 */
-	public static final int PITCH_HISTORY_LENGTH_DEFAULT = 11;
+	public static final int PITCH_HISTORY_LENGTH_DEFAULT = 6;
 	
 	/**
 	 * The probability score to return for adding a note to an empty Voice.
@@ -62,7 +62,7 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 	/**
 	 * The default value for {@link #NEW_VOICE_PROBABILITY}.
 	 */
-	public static final double NEW_VOICE_PROBABILITY_DEFAULT = 5E-10;
+	public static final double NEW_VOICE_PROBABILITY_DEFAULT = 1E-9;
 	
 	/**
 	 * The beam size for our search. It seems that 1 is optimal anyways, so we can remove this probably.
@@ -91,6 +91,15 @@ public class HmmVoiceSplittingModelParameters implements Comparable<HmmVoiceSpli
 		GAP_STD_MICROS = GSM;
 		PITCH_STD = PS;
 		MIN_GAP_SCORE = MGS;
+	}
+	
+	/**
+	 * Create new params with default values for live performance data.
+	 * 
+	 * @param live Unused.
+	 */
+	public HmmVoiceSplittingModelParameters(boolean live) {
+		this(25, 3E-8, 6, 806000, 6, 0.01);
 	}
 	
 	/**

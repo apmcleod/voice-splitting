@@ -16,6 +16,7 @@ import javax.sound.midi.InvalidMidiDataException;
 
 import voicesplitting.generic.MidiModel;
 import voicesplitting.parsing.EventParser;
+import voicesplitting.parsing.MidiWriter;
 import voicesplitting.parsing.NoteListGenerator;
 import voicesplitting.time.TimeTracker;
 import voicesplitting.utils.MidiNote;
@@ -79,44 +80,14 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * A List of the Files we're reading MIDI data in from.
 	 */
 	private static List<File> files;
+	
+	/**
+	 * A List of the TimeTrackers we've parsed from each song.
+	 */
+	private static List<TimeTracker> tts;
 
 	/**
-	 * Train or test the voice splitter. The arguments are as follows:
-	 * <p>
-	 * <code>java HmmVoiceSplittingModelTester ARGS Files</code>
-	 * <p>
-	 * Here, <code>Files</code> should be a list of 1 or more MIDI files or directories containing only MIDI
-	 * files. Any directories listed will be searched recursively for all files, and if any of the files
-	 * found are not in MIDI format, an InvalidMidiDataException will be thrown.
-	 * <p>
-	 * ARGS:
-	 * <ul>
-	 * <li>
-	 * Running arguments:
-	 * <ul>
-	 * <li><code>-r</code> = Run a test (if used with <code>-t</code>, the tuned parameters instead of any given).</li>
-	 * <li><code>-t [STEPS]</code> = Tune to maximize F1-Measure, and optionally set the number of steps to make
-     * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
-     * method rather than your own script because it runs the tests in parallel as much as possible to speed up
-     * training.</li>
-     * <li><code>-e</code> = Extract the separated voices in the following format: songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity
-     * <li><code>-v</code> = Verbose (print out each song and each individual voice when running).</li>
-     * <li><code>-T</code> = Use tracks as correct voice (instead of channels).</li>
-     * </ul>
-     * </li>
-     * <li>
-     * If running with <code>-r</code>, the following arguments can be used to change the parameter settings from their default
-     * values (those with which we tested the computer generated WTC fugues in the paper):
-     * <ul>
-     * <li><code>-b INT</code> = Set the Beam Size parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#BEAM_SIZE_DEFAULT}).</li>
-     * <li><code>-n DOUBLE</code> = Set the New Voice Probability parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#NEW_VOICE_PROBABILITY_DEFAULT}).</li>
-     * <li><code>-h INT</code> = Set the Pitch History Length parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_HISTORY_LENGTH_DEFAULT}).</li>
-     * <li><code>-g DOUBLE</code> = Set the Gap Std Micros parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#GAP_STD_MICROS_DEFAULT}).</li>
-     * <li><code>-p DOUBLE</code> = Set the Pitch Std parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_STD_DEFAULT}).</li>
-     * <li><code>-m DOUBLE</code> = Set the Min Gap Score parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#MIN_GAP_SCORE_DEFAULT}).</li>
-     * </ul>
-     * </li>
-     * </ul>
+	 * Train or test the voice splitter. Run with no args to print help.
 	 * 
 	 * @param args The command line arguments.
 	 * 
@@ -129,6 +100,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		boolean tune = false;
 		boolean run = false;
 		boolean extract = false;
+		String extension = null;
+		boolean live = false;
 		
 		// default values
 		int BS = HmmVoiceSplittingModelParameters.BEAM_SIZE_DEFAULT;
@@ -164,6 +137,21 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 					case 'T':
 						// Use track
 						USE_CHANNEL = false;
+						break;
+						
+					case 'l':
+						// Live params
+						live = true;
+						break;
+						
+					case 'w':
+						// Write out results to new MIDI files
+						try {
+							extension = args[++i];
+						} catch (Exception e) {
+							argumentError("-w requires an extension to be given.");
+							return;
+						}
 						break;
 						
 					case 'v':
@@ -261,7 +249,13 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		
 		songs = getSongs(files);
 		
-		HmmVoiceSplittingModelParameters params = new HmmVoiceSplittingModelParameters(BS, NVP, PHL, GSM, PS, MGS);
+		HmmVoiceSplittingModelParameters params = null;
+		if (live) {
+			params = new HmmVoiceSplittingModelParameters(live);
+			
+		} else {
+			params = new HmmVoiceSplittingModelParameters(BS, NVP, PHL, GSM, PS, MGS);
+		}
 		
 		if (tune) {
 			HmmVoiceSplittingModelParameters best = tune(steps);
@@ -270,16 +264,16 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			}
 		}
 
-		if (run || extract) {
-			HmmVoiceSplittingModelTesterReturn result = runTest(params, extract);
+		if (run || extract || (extension != null)) {
+			HmmVoiceSplittingModelTesterReturn result = runTest(params, extract, extension);
 			
 			if (run) {
 				System.out.println(result);
 			}
 		}
 		
-		if (!tune && !run && !extract) {
-			argumentError("Neither -t, -r, nor -e selected");
+		if (!tune && !run && !extract && extension == null) {
+			argumentError("Neither -t, -r, -w, nor -e selected");
 		}
 	}
 
@@ -362,10 +356,14 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * 
 	 * @param params The {@link HmmVoiceSplittingModelParameters} we want to use for this run.
 	 * @param extract Whether to print out the extracted voices or not.
+	 * @param extension If given, write out the results of each split to a new file with the given extension.
+	 * Do not do anything if null is given.
 	 * @return The {@link HmmVoiceSplittingModelTesterReturn} object containing the parameters and the
 	 * achieved accuracy.
+	 * @throws InvalidMidiDataException 
+	 * @throws IOException 
 	 */
-	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params, boolean extract) {
+	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params, boolean extract, String extension) throws InvalidMidiDataException, IOException {
 		double voiceAccSum = 0;
 		double voiceAccSongSum = 0;
 		
@@ -428,6 +426,21 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				System.out.println("P=" + (((double) songTruePositives) / (songTruePositives + songFalsePositives)));
 				System.out.println("R=" + (((double) songTruePositives) / (songTruePositives + songFalseNegatives)));
 				System.out.println("F1=" + (2 * ((double) songTruePositives) / (2 * songTruePositives + songFalseNegatives + songFalsePositives)));
+			}
+			
+			// Write voice splits out to new MIDI file
+			if (extension != null) {
+				MidiWriter writer = new MidiWriter(new File(files.get(songIndex).toString() + "." + extension), tts.get(songIndex));
+				int i = 0;
+				for (Voice voice : voices) {
+					for (MidiNote note : voice.getNotes()) {
+						note.setCorrectVoice(i);
+						writer.addMidiNote(note);
+					}
+					i++;
+				}
+				
+				writer.write();
 			}
 		}
 		
@@ -529,6 +542,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		List<NoteListGenerator> songs = new ArrayList<NoteListGenerator>(files.size());
 		goldStandard = new ArrayList<List<List<MidiNote>>>(files.size());
 		
+		tts = new ArrayList<TimeTracker>();
+		
 		for (File midi : files) {
 			TimeTracker tt = new TimeTracker();
 			NoteListGenerator nlg = new NoteListGenerator(tt);
@@ -541,6 +556,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			}
 
 			songs.add(nlg);
+			tts.add(tt);
 			goldStandard.add(ep.getGoldStandardVoices());
 		}
 		
@@ -584,42 +600,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	}
 	
 	/**
-	 * Print an argument error to stderr. The correct arguments are as follows:
-	 * <p>
-	 * <code>java HmmVoiceSplittingModelTester ARGS Files</code>
-	 * <p>
-	 * Here, <code>Files</code> should be a list of 1 or more MIDI files or directories containing only MIDI
-	 * files. Any directories listed will be searched recursively for all files, and if any of the files
-	 * found are not in MIDI format, an InvalidMidiDataException will be thrown.
-	 * <p>
-	 * ARGS:
-	 * <ul>
-	 * <li>
-	 * Running arguments:
-	 * <ul>
-	 * <li><code>-r</code> = Run a test (if used with <code>-t</code>, the tuned parameters instead of any given).</li>
-	 * <li><code>-t [STEPS]</code> = Tune to maximize F1-Measure, and optionally set the number of steps to make
-     * within each parameter range to an Integer value (default = 5). It is HIGHLY recommended to use this training
-     * method rather than your own script because it runs the tests in parallel as much as possible to speed up
-     * training.</li>
-     * <li><code>-e</code> = Extract the separated voices in the following format: noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity
-     * <li><code>-v</code> = Verbose (print out each song and each individual voice when running).</li>
-     * <li><code>-T</code> = Use tracks as correct voice (instead of channels).</li>
-     * </ul>
-     * </li>
-     * <li>
-     * If running with <code>-r</code>, the following arguments can be used to change the parameter settings from their default
-     * values (those with which we tested the computer generated WTC fugues in the paper):
-     * <ul>
-     * <li><code>-b INT</code> = Set the Beam Size parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#BEAM_SIZE_DEFAULT}).</li>
-     * <li><code>-n DOUBLE</code> = Set the New Voice Probability parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#NEW_VOICE_PROBABILITY_DEFAULT}).</li>
-     * <li><code>-h INT</code> = Set the Pitch History Length parameter to the value INT (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_HISTORY_LENGTH_DEFAULT}).</li>
-     * <li><code>-g DOUBLE</code> = Set the Gap Std Micros parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#GAP_STD_MICROS_DEFAULT}).</li>
-     * <li><code>-p DOUBLE</code> = Set the Pitch Std parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#PITCH_STD_DEFAULT}).</li>
-     * <li><code>-m DOUBLE</code> = Set the Min Gap Score parameter to the value DOUBLE (defualt = {@value voicesplitting.voice.hmm.HmmVoiceSplittingModelParameters#MIN_GAP_SCORE_DEFAULT}).</li>
-     * </ul>
-     * </li>
-     * </ul>
+	 * Print an argument error to stderr.
 	 * 
 	 * @param arg The argument which caused the error.
 	 */
@@ -630,9 +611,11 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		sb.append("Usage: java VoiceSplittingTester ARGS Files\n");
 		
 		sb.append("RUNNING:\n");
-		sb.append("-t [STEPS] = Tune, and optionally set the number of steps to make within each parameter range");
+		sb.append("-t [STEPS] = Train, and optionally set the number of steps to make within each parameter range");
 				sb.append(" to an Integer value (default = 5)\n");
-		sb.append("-r = Run test (if used with -t, we will use the tuned parameters instead of any given)\n");
+		sb.append("-r = Run voice splitting.\n");
+		sb.append("-w EXT = Write out results of voice splitting to MIDI file, separating voices by channel and track.");
+				sb.append(" Add \".EXT\" to the end of each file name when writing.\n");
 		sb.append("-e = Extract the separated voices in the following format: songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity\n");
 		sb.append("-v = Verbose (print out each song and each individual voice when running)\n");
 		sb.append("-T = Use tracks as correct voice (instead of channels)\n\n");
@@ -675,7 +658,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		HmmVoiceSplittingModelTesterReturn best = new HmmVoiceSplittingModelTesterReturn();
 		
 		for (HmmVoiceSplittingModelParameters params : parametersList) {
-			HmmVoiceSplittingModelTesterReturn result = runTest(params, false);
+			HmmVoiceSplittingModelTesterReturn result = runTest(params, false, null);
 			
 			System.out.println(result);
 			
