@@ -2,6 +2,7 @@ package voicesplitting.voice.hmm;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +101,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		boolean tune = false;
 		boolean run = false;
 		boolean extract = false;
-		String extension = null;
+		String dir = null;
 		boolean live = false;
 		
 		// default values
@@ -147,9 +148,9 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 					case 'w':
 						// Write out results to new MIDI files
 						try {
-							extension = args[++i];
+							dir = args[++i];
 						} catch (Exception e) {
-							argumentError("-w requires an extension to be given.");
+							argumentError("-w requires a directory to be given.");
 							return;
 						}
 						break;
@@ -264,15 +265,15 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			}
 		}
 
-		if (run || extract || (extension != null)) {
-			HmmVoiceSplittingModelTesterReturn result = runTest(params, extract, extension);
+		if (run || extract || (dir != null)) {
+			HmmVoiceSplittingModelTesterReturn result = runTest(params, extract, dir);
 			
 			if (run) {
 				System.out.println(result);
 			}
 		}
 		
-		if (!tune && !run && !extract && extension == null) {
+		if (!tune && !run && !extract && dir == null) {
 			argumentError("Neither -t, -r, -w, nor -e selected");
 		}
 	}
@@ -356,14 +357,14 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	 * 
 	 * @param params The {@link HmmVoiceSplittingModelParameters} we want to use for this run.
 	 * @param extract Whether to print out the extracted voices or not.
-	 * @param extension If given, write out the results of each split to a new file with the given extension.
+	 * @param dir If given, write out the results of each split to a new file in the given directory.
 	 * Do not do anything if null is given.
 	 * @return The {@link HmmVoiceSplittingModelTesterReturn} object containing the parameters and the
 	 * achieved accuracy.
 	 * @throws InvalidMidiDataException 
 	 * @throws IOException 
 	 */
-	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params, boolean extract, String extension) throws InvalidMidiDataException, IOException {
+	private static HmmVoiceSplittingModelTesterReturn runTest(HmmVoiceSplittingModelParameters params, boolean extract, String dir) throws InvalidMidiDataException, IOException {
 		double voiceAccSum = 0;
 		double voiceAccSongSum = 0;
 		
@@ -429,8 +430,12 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			}
 			
 			// Write voice splits out to new MIDI file
-			if (extension != null) {
-				MidiWriter writer = new MidiWriter(new File(files.get(songIndex).toString() + "." + extension), tts.get(songIndex));
+			if (dir != null) {
+				// Make directory and filename
+				(new File(dir)).mkdirs();
+				String fileName = Paths.get(dir, files.get(songIndex).getName()).toString();
+				
+				MidiWriter writer = new MidiWriter(new File(fileName), tts.get(songIndex));
 				int i = 0;
 				for (Voice voice : voices) {
 					for (MidiNote note : voice.getNotes()) {
@@ -441,6 +446,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				}
 				
 				writer.write();
+				System.out.println("Output successfully written to " + fileName);
 			}
 		}
 		
@@ -614,8 +620,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		sb.append("-t [STEPS] = Train, and optionally set the number of steps to make within each parameter range");
 				sb.append(" to an Integer value (default = 5)\n");
 		sb.append("-r = Run voice splitting.\n");
-		sb.append("-w EXT = Write out results of voice splitting to MIDI file, separating voices by channel and track.");
-				sb.append(" Add \".EXT\" to the end of each file name when writing.\n");
+		sb.append("-w DIR = Write out results of voice splitting to MIDI files, separating voices by channel and track.");
+				sb.append(" The files will be saved in the DIR directory.\n");
 		sb.append("-e = Extract the separated voices in the following format: songID noteID voiceID onsetTime(microseconds) offsetTime(microseconds) pitch velocity\n");
 		sb.append("-v = Verbose (print out each song and each individual voice when running)\n");
 		sb.append("-T = Use tracks as correct voice (instead of channels)\n\n");

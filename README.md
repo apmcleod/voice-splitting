@@ -66,7 +66,7 @@ ARGS:
      method rather than your own script because it runs the tests in parallel as much as possible to speed up
      training.
    * `-e` = Extract and print the separated voices.
-   * `-w EXT` = Write the separated voices out to a new MIDI with ".EXT" added to the end of the filename.
+   * `-w DIR` = Write the separated voices out to a new MIDI files in the `DIR` directory.
   
  Optional arguments:
    * `-v` = Verbose (print out each song and each individual voice when running).
