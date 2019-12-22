@@ -446,6 +446,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 				}
 				
 				writer.write();
+				System.out.println("Output successfully written to " + fileName);
 			}
 		}
 		
