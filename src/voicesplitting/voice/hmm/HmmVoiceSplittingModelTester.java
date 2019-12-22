@@ -433,7 +433,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			if (dir != null) {
 				// Make directory and filename
 				(new File(dir)).mkdirs();
-				String fileName = Paths.get(dir, files.get(songIndex).toString()).toString();
+				String fileName = Paths.get(dir, files.get(songIndex).getName()).toString();
 				
 				MidiWriter writer = new MidiWriter(new File(fileName), tts.get(songIndex));
 				int i = 0;
