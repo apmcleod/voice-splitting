@@ -58,6 +58,11 @@ Here, `Files` should be a list of 1 or more MIDI files or directories containing
 files. Any directories listed will be searched recursively for all files, and if any of the files
 found are not in MIDI format, an exception will be thrown.
 
+*To write results out as tracks to a new MIDI file*:
+> `java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingTester -w voice FILES` (also add -l if the files are live performance).
+
+This will write all of the files out to new MIDI files in the directory `voice`.
+
 ARGS:
  One of these is required:
    * `-r` = Run a test (if used with -t, we will use the tuned parameters instead of any given).

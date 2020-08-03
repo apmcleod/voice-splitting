@@ -28,7 +28,7 @@ import voicesplitting.utils.MidiNote;
  * The generated MIDI file will separate the notes into voices by both track and channel.
  * This can be used to fix MIDI files which don't do this by reading them (with the correct
  * useChannel setting) and then writing the data back out to a new (or the same) file.
- * 
+ *
  * @author Andrew McLeod - 28 July, 2015
  * @version 1.0
  * @since 1.0
@@ -38,64 +38,72 @@ public class MidiWriter {
 	 * The File we want to write to.
 	 */
 	private File outFile;
-	
+
 	/**
 	 * The TimeTracker with the timing information for this Midi data.
 	 */
 	private TimeTracker timeTracker;
-	
+
 	/**
 	 * The Sequence containing the Midi data we are going to write out.
 	 */
 	private Sequence sequence;
-	
+
 	/**
 	 * Create a new MidiWriter to write out to the given File.
-	 * 
+	 *
 	 * @param outFile {@link #outFile}
 	 * @param tt {@link #timeTracker}
-	 * 
-	 * @throws InvalidMidiDataException If somehow the TimeTracker has an invalid PPQ value. 
+	 *
+	 * @throws InvalidMidiDataException If somehow the TimeTracker has an invalid PPQ value.
 	 */
 	public MidiWriter(File outFile, TimeTracker tt) throws InvalidMidiDataException {
 		this.outFile = outFile;
 		timeTracker = tt;
-		
+
 		sequence = new Sequence(Sequence.PPQ, (int) timeTracker.getPPQ());
 		sequence.createTrack();
-		
+
 		writeTimeTracker();
 	}
-	
+
 	/**
 	 * Write the proper TimeTracker events out to our {@link #sequence}.
-	 * 
-	 * @throws InvalidMidiDataException If the TimeTracker contained invalid Midi data. 
+	 *
+	 * @throws InvalidMidiDataException If the TimeTracker contained invalid Midi data.
 	 */
 	private void writeTimeTracker() throws InvalidMidiDataException {
 		LinkedList<TimeTrackerNode> nodes = timeTracker.getNodes();
 		ListIterator<TimeTrackerNode> iterator = nodes.listIterator();
-    	
-    	TimeTrackerNode node = iterator.next();
+
+		TimeTrackerNode node = iterator.next();
+		// Skip duplicate nodes at same time
+		while (iterator.hasNext() && nodes.get(iterator.nextIndex()).getStartTime() == node.getStartTime()) {
+			node = iterator.next();
+		}
     	long tick = node.getStartTick();
-    	
+
     	writeKeySignature(node.getKeySignature(), tick);
     	writeTimeSignature(node.getTimeSignature(), tick);
     	writeTempo(node.getTempo(), tick);
-    	
+
     	while (iterator.hasNext()) {
     		TimeTrackerNode prev = node;
-    		node = iterator.next();
+			node = iterator.next();
+			// Skip duplicate nodes at same time
+			while (iterator.hasNext() && nodes.get(iterator.nextIndex()).getStartTime() == node.getStartTime()) {
+				node = iterator.next();
+			}
     		tick = node.getStartTick();
-    		
+
     		if (!node.getKeySignature().equals(prev.getKeySignature())) {
     			writeKeySignature(node.getKeySignature(), tick);
     		}
-    		
+
     		if (!node.getTimeSignature().equals(prev.getTimeSignature())) {
     			writeTimeSignature(node.getTimeSignature(), tick);
     		}
-    		
+
     		if (!node.getTempo().equals(prev.getTempo())) {
     			writeTempo(node.getTempo(), tick);
     		}
@@ -104,117 +112,117 @@ public class MidiWriter {
 
 	/**
 	 * Write the given key signature out to {@link #sequence} at the given tick.
-	 * 
+	 *
 	 * @param keySignature The key signature to write.
 	 * @param tick The tick at which to write it.
 	 * @throws InvalidMidiDataException If the key signature produces invalid Midi data.
 	 */
 	private void writeKeySignature(KeySignature keySignature, long tick) throws InvalidMidiDataException {
 		MetaMessage mm = new MetaMessage();
-		
+
 		byte[] data = {
 				(byte) keySignature.getNumSharps(),
 				(byte) (keySignature.isMajor() ? 0 : 1)};
-		
+
 		mm.setMessage(EventParser.KEY_SIGNATURE, data, data.length);
-		
+
 		sequence.getTracks()[0].add(new MidiEvent(mm, tick));
 	}
 
 	/**
 	 * Write the given time signature out to {@link #sequence} at the given tick.
-	 * 
+	 *
 	 * @param timeSignature The time signature to write.
 	 * @param tick The tick at which to write it.
 	 * @throws InvalidMidiDataException If the time signature contained invalid Midi data.
 	 */
 	private void writeTimeSignature(TimeSignature timeSignature, long tick) throws InvalidMidiDataException {
 		MetaMessage mm = new MetaMessage();
-		
+
 		int denominator = timeSignature.getDenominator();
-		
+
 		// Base 2 log calculator for whole numbers
 		int i = 0;
 		while (denominator != 1) {
 			denominator /= 2;
 			i++;
 		}
-		
+
 		byte[] data = {
 				(byte) timeSignature.getNumerator(),
 				(byte) i,
 				(byte) timeSignature.getMetronomeTicksPerBeat(),
 				(byte) timeSignature.getNotes32PerQuarter()};
-		
+
 		mm.setMessage(EventParser.TIME_SIGNATURE, data, data.length);
-		
+
 		sequence.getTracks()[0].add(new MidiEvent(mm, tick));
 	}
-	
+
 	/**
 	 * Write the given tempo out to {@link #sequence} at the given tick.
-	 * 
+	 *
 	 * @param tempo The tempo to write.
 	 * @param tick The tick at which to write it.
-	 * 
+	 *
 	 * @throws InvalidMidiDataException If the tempo contained invalid Midi data.
 	 */
 	private void writeTempo(Tempo tempo, long tick) throws InvalidMidiDataException {
 		MetaMessage mm = new MetaMessage();
-		
+
 		int mspq = tempo.getMicroSecondsPerQuarter();
-		
+
 		byte[] data = {
 				(byte) ((mspq & 0xff000000) >> 24),
 				(byte) ((mspq & 0x00ff0000) >> 16),
 				(byte) ((mspq & 0x0000ff00) >> 8),
 				(byte) (mspq & 0x000000ff)};
-		
+
 		// Clear leading 0's
 		int i;
 		for (i = 0; i < data.length - 1 && data[i] == 0; i++);
 		if (i != 0) {
 			data = Arrays.copyOfRange(data, i, data.length);
 		}
-		
+
 		mm.setMessage(EventParser.TEMPO, data, data.length);
-		
+
 		sequence.getTracks()[0].add(new MidiEvent(mm, tick));
 	}
 
 	/**
 	 * Add the given MidiNote into the {@link #sequence}.
-	 *  
+	 *
 	 * @param note The note to add.
-	 * 
-	 * @throws InvalidMidiDataException If the MidiNote contains invalid Midi data. 
+	 *
+	 * @throws InvalidMidiDataException If the MidiNote contains invalid Midi data.
 	 */
 	public void addMidiNote(MidiNote note) throws InvalidMidiDataException {
 		int correctVoice = note.getCorrectVoice();
-		
+
 		// Pad with enough tracks
 		while (sequence.getTracks().length <= correctVoice) {
 			sequence.createTrack();
 		}
-		
+
 		// Get the correct track
 		Track track = sequence.getTracks()[correctVoice];
-		
+
 		ShortMessage noteOn = new ShortMessage();
 		noteOn.setMessage(ShortMessage.NOTE_ON | correctVoice, note.getPitch(), note.getVelocity());
 		MidiEvent noteOnEvent = new MidiEvent(noteOn, note.getOnsetTick());
-		
+
 		ShortMessage noteOff = new ShortMessage();
 		noteOff.setMessage(ShortMessage.NOTE_OFF | correctVoice, note.getPitch(), 0);
 		MidiEvent noteOffEvent = new MidiEvent(noteOff, note.getOffsetTick());
-		
+
 		track.add(noteOnEvent);
 		track.add(noteOffEvent);
 	}
-	
+
 	/**
 	 * Actually write the data out to file.
-	 * 
+	 *
 	 * @throws IOException If the file cannot be written to.
 	 */
 	public void write() throws IOException {
