@@ -67,12 +67,12 @@ ARGS:
      training.
    * `-e` = Extract and print the separated voices.
    * `-w DIR` = Write the separated voices out to a new MIDI files in the `DIR` directory.
-  
+
  Optional arguments:
    * `-v` = Verbose (print out each song and each individual voice when running).
    * `-T` = Use tracks as correct voice (instead of channels). See [Troubleshooting](#troubleshooting)
      for more information.
-     
+
 If running with `-r`, `-e`, or `-w`, the following arguments can be used to change the parameter settings from their default
 values (those with which we tested the computer generated WTC fugues in the paper):
    * `-l` = Set the parameters to those best for live performance.
@@ -82,7 +82,7 @@ values (those with which we tested the computer generated WTC fugues in the pape
    * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE.
    * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE.
    * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE.
-   
+
 #### Output
 The `-e` output has the following format:
 
@@ -100,12 +100,12 @@ These metrics are defined precicely in the paper.
 The verbose `-r` output has the standard output as its final line, and also prints the following for each of the
 songs given in the `Files` argument:
 
-> `FileName`  
-> `Correct` / `Total` = `Voice Consistency`  
-> ...  
-> P=`Precision`  
-> R=`Recall`  
-> F1=`F1-Measure`  
+> `FileName`
+> `Correct` / `Total` = `Voice Consistency`
+> ...
+> P=`Precision`
+> R=`Recall`
+> F1=`F1-Measure`
 
 Here, the "`Correct` / `Total` = `Voice Consistency`" line is repeated per voice, and the Voice Consistency
 metric is again defined in the paper.
@@ -144,9 +144,8 @@ using it, extending it, or you'd like to see me add any additional features, ple
 email or by submitting an issue on github. Any and all questions are always welcome.
 
 There is a paper which has been published in the Journal of New Music Research available on
-my [website](http://homepages.inf.ed.ac.uk/s1331854/software.html#VoiceSeparation) with further documentation.
+my [website](https://apmcleod.github.io/index.html) with further documentation.
 Please cite this if you use my code or the paper.
 
-Thanks, and enjoy!  
-Andrew McLeod  
-A.McLeod-5@sms.ed.ac.uk
+Thanks, and enjoy!
+Andrew McLeod
