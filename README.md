@@ -17,6 +17,14 @@ This is the code and data from my 2016 Journal of New Music Research paper. If y
 The goal of this project is to have a Java program which is able to split MIDI performance
 data into monophonic voices.
 
+# Quick Start for Generating MIDI Output
+This command will write the resulting voices of the given FILES into new MIDI files in the voice directory, with default settings. 
+```
+java -cp bin voicesplitting.voice.hmm.HmmVoiceSplittingModelTester -w voice FILES
+```
+* Add `-l` if the MIDI files are live performance (unquantized) MIDI.
+* If the computation takes a long time for some files, you can use the `-M INT` flag to set the maximum number of voices to output (e.g., `-M 10`).
+
 Note that some MIDI files separate voices by channel, while some
 do so by track. This project uses channel by default, but this can be changed by using the
 `-T` flag when running from the command line, or by unchecking the `Use Channel` box (and
@@ -87,6 +95,7 @@ values (those with which we tested the computer generated WTC fugues in the pape
    * `-g DOUBLE` = Set the Gap Std Micros parameter to the value DOUBLE.
    * `-p DOUBLE` = Set the Pitch Std parameter to the value DOUBLE.
    * `-m DOUBLE` = Set the Min Gap Score parameter to the value DOUBLE.
+   * `-M INT` = Set the maximum number of voices that the program will generate (default unlimited). Can speed up computation in some cases.
 
 #### Output
 The `-e` output has the following format:
