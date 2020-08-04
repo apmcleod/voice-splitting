@@ -88,6 +88,11 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	private static List<TimeTracker> tts;
 
 	/**
+	 * The max number of voices to output. Usually not necessary.
+	 */
+	public static int MAX_VOICES = 0;
+
+	/**
 	 * Train or test the voice splitter. Run with no args to print help.
 	 * 
 	 * @param args The command line arguments.
@@ -237,6 +242,16 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 							MGS = Double.parseDouble(args[++i]);
 						} catch (Exception e) {
 							argumentError("-m");
+							return;
+						}
+						break;
+
+					case 'M':
+						// Maximum number of voices
+						try {
+							MAX_VOICES = Integer.parseInt(args[++i]);
+						} catch (Exception e) {
+							argumentError("-M");
 							return;
 						}
 						break;
@@ -633,7 +648,8 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 		sb.append("-h INT = Set the Pitch History Length parameter to the value INT(defualt = " + HmmVoiceSplittingModelParameters.PITCH_HISTORY_LENGTH_DEFAULT + ")\n");
 		sb.append("-g DOUBLE = Set the Gap Std Micros parameter to the value DOUBLE(defualt = " + HmmVoiceSplittingModelParameters.GAP_STD_MICROS_DEFAULT + ")\n");
 		sb.append("-p DOUBLE = Set the Pitch Std parameter to the value DOUBLE(defualt = " + HmmVoiceSplittingModelParameters.PITCH_STD_DEFAULT + ")\n");
-		sb.append("-m DOUBLE = Set the Min Gap Score parameter to the value DOUBLE(defualt = " + HmmVoiceSplittingModelParameters.MIN_GAP_SCORE_DEFAULT + ")\n\n");
+		sb.append("-m DOUBLE = Set the Min Gap Score parameter to the value DOUBLE(defualt = " + HmmVoiceSplittingModelParameters.MIN_GAP_SCORE_DEFAULT + ")\n");
+		sb.append("-M INT = Set the maximum number of voices (default = Unlimited). Helps speed up processing in some cases.\n");
 		
 		System.err.println(sb);
 	}
