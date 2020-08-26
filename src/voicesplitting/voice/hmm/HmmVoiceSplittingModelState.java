@@ -124,7 +124,7 @@ public class HmmVoiceSplittingModelState extends VoiceSplittingModelState implem
 
 
 		// Calculate transition probabilities for starting new voices
-		if (HmmVoiceSplittingModelTester.MAX_VOICES > 0 && voices.size() < HmmVoiceSplittingModelTester.MAX_VOICES) {
+		if (voices.size() < HmmVoiceSplittingModelTester.MAX_VOICES) {
 			double[] newVoiceProbs = new double[newVoices.size() + 1];
 			for (int i = 0; i < newVoiceProbs.length; i++) {
 				newVoiceProbs[i] = getTransitionProb(incoming.get(noteIndex), -i - 1, newVoices);
@@ -171,7 +171,7 @@ public class HmmVoiceSplittingModelState extends VoiceSplittingModelState implem
 	private void addNewVoicesRecursive(List<List<Integer>> openVoiceIndices, List<MidiNote> incoming, List<Voice> newVoices,
 			double logProbSum, int noteIndex, double[] newVoiceProbs, double maxValue, TreeSet<HmmVoiceSplittingModelState> newStates) {
 
-		if (HmmVoiceSplittingModelTester.MAX_VOICES > 0 && newVoices.size() < HmmVoiceSplittingModelTester.MAX_VOICES) {
+		if (newVoices.size() < HmmVoiceSplittingModelTester.MAX_VOICES) {
 			for (int newVoiceIndex = 0; newVoiceIndex < newVoiceProbs.length; newVoiceIndex++) {
 				if (newVoiceProbs[newVoiceIndex] == maxValue) {
 					// Add at any location with max probability

@@ -90,7 +90,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 	/**
 	 * The max number of voices to output. Usually not necessary.
 	 */
-	public static int MAX_VOICES = 0;
+	public static int MAX_VOICES = Integer.MAX_VALUE;
 
 	/**
 	 * Train or test the voice splitter. Run with no args to print help.
@@ -406,7 +406,7 @@ public class HmmVoiceSplittingModelTester implements Callable<HmmVoiceSplittingM
 			if (vs.getHypotheses().isEmpty()) {
 				System.err.println("Error: No result found.");
 
-				if (MAX_VOICES != 0) {
+				if (MAX_VOICES != Integer.MAX_VALUE) {
 					System.err.println("Try with a larger -M. It is possible that there are too many simultaneous notes.");
 				}
 
